@@ -9,25 +9,25 @@
 #     # [Options, -SessionTicket],
 #     # [Options, Compression]
 #   ]
-# listeners:
-#     # address: Ip address,0.0.0.0 by default
-#   - address: 0.0.0.0
-#     # port: Port number
-#     port: 80
-#     # https: If true, use https for security,false by default
-#     https: false
-#   - address: 0.0.0.0
-#     port: 443
-#     https: true
-#     # cert,key: Cert file path and key file path, empty by default,
-#     # if empty, use the global setting
-#     cert: ''
-#     key: ''
-#     # use_old_tls: enable the TLS1.0/1.1, false by default
-#     use_old_tls: false
-#     ssl_conf: [
-#       # [MinProtocol, TLSv1.3]
-#     ]
+listeners:
+  # address: Ip address,0.0.0.0 by default
+  - address: 0.0.0.0
+    # port: Port number
+    port: 8080
+    # https: If true, use https for security,false by default
+    https: false
+  # - address: 0.0.0.0
+  #   port: 443
+  #   https: true
+  #   # cert,key: Cert file path and key file path, empty by default,
+  #   # if empty, use the global setting
+  #   cert: ''
+  #   key: ''
+  #   # use_old_tls: enable the TLS1.0/1.1, false by default
+  #   use_old_tls: false
+  #   ssl_conf: [
+  #     # [MinProtocol, TLSv1.3]
+  #   ]
 # db_clients:
 #     # name: Name of the client,'default' by default
 #   - name: ''
@@ -48,11 +48,11 @@
 #     # is_fast: false by default, if it is true, the client is faster but user can't call
 #     # any synchronous interface of it.
 #     is_fast: false
-#     # client_encoding: The character set used by the client. it is empty string by default which 
+#     # client_encoding: The character set used by the client. it is empty string by default which
 #     # means use the default character set.
 #     # client_encoding: '',
-#     # number_of_connections: 1 by default, if the 'is_fast' is true, the number is the number of  
-#     # connections per IO thread, otherwise it is the total number of all connections.  
+#     # number_of_connections: 1 by default, if the 'is_fast' is true, the number is the number of
+#     # connections per IO thread, otherwise it is the total number of all connections.
 #     number_of_connections: 1
 #     # timeout: -1 by default, in seconds, the timeout for executing a SQL query.
 #     # zero or negative value means no timeout.
@@ -76,8 +76,8 @@
 #     # is_fast: false by default, if it is true, the client is faster but user can't call
 #     # any synchronous interface of it.
 #     is_fast: false
-#     # number_of_connections: 1 by default, if the 'is_fast' is true, the number is the number of  
-#     # connections per IO thread, otherwise it is the total number of all connections.  
+#     # number_of_connections: 1 by default, if the 'is_fast' is true, the number is the number of
+#     # connections per IO thread, otherwise it is the total number of all connections.
 #     number_of_connections: 1
 #     # timeout: -1.0 by default, in seconds, the timeout for executing a command.
 #     # zero or negative value means no timeout.
@@ -85,15 +85,15 @@
 app:
   # number_of_threads: The number of IO threads, 1 by default, if the value is set to 0, the number of threads
   # is the number of CPU cores
-  number_of_threads: 1
+  number_of_threads: 2
   # enable_session: False by default
   enable_session: true
   session_timeout: 0
   # string value of SameSite attribute of the Set-Cookie HTTP respone header
   # valid value is either 'Null' (default), 'Lax', 'Strict' or 'None'
-  session_same_site: 'Null'
+  session_same_site: "Null"
   # session_cookie_key: The cookie key of the session, "JSESSIONID" by default
-  session_cookie_key: 'JSESSIONID'
+  session_cookie_key: "JSESSIONID"
   # session_max_age: The max age of the session cookie, -1 by default
   session_max_age: -1
   # document_root: Root path of HTTP document, defaut path is ./
@@ -111,7 +111,7 @@ app:
   # static_file_headers:
   #   - name: field-name
   #     value: field-value
-  # upload_path: The path to save the uploaded file. "uploads" by default. 
+  # upload_path: The path to save the uploaded file. "uploads" by default.
   # If the path isn't prefixed with /, ./ or ../,
   # it is relative path of document_root path
   upload_path: uploads
@@ -135,22 +135,21 @@ app:
     - xml
   # mime: A dictionary that extends the internal MIME type support. Maps extensions into new MIME types
   # note: This option only adds MIME to the sever. `file_types` above have to be set for the server to serve them.
-  mime: {
-    # text/markdown: md,
-    # text/gemini: [gmi, gemini]
-  }
+  mime: {}
+  # text/markdown: md,
+  # text/gemini: [gmi, gemini]
   # locations: An array of locations of static files for GET requests.
   locations:
-      # uri_prefix: The URI prefix of the location prefixed with "/", the default value is "" that disables the location.
-    - uri_prefix: '' # /.well-known/acme-challenge/
+    # uri_prefix: The URI prefix of the location prefixed with "/", the default value is "" that disables the location.
+    - uri_prefix: "" # /.well-known/acme-challenge/
       # default_content_type: The default content type of the static files without
       # an extension. empty string by default.
       default_content_type: text/plain
-      # alias: The location in file system, if it is prefixed with "/", it 
-      # presents an absolute path, otherwise it presents a relative path to 
-      # the document_root path. 
+      # alias: The location in file system, if it is prefixed with "/", it
+      # presents an absolute path, otherwise it presents a relative path to
+      # the document_root path.
       # The default value is "" which means use the document root path as the location base path.
-      alias: ''
+      alias: ""
       # is_case_sensitive: indicates whether the URI prefix is case sensitive.
       is_case_sensitive: false
       # allow_all: true by default. If it is set to false, only static files with a valid extension can be accessed.
@@ -171,20 +170,20 @@ app:
   # it is relative path of document_root path
   dynamic_views_path:
     - ./views
-  # dynamic_views_output_path: Default by an empty string which means the output path of source 
-  # files is the path where the csp files locate. If the path isn't prefixed with /, it is relative 
+  # dynamic_views_output_path: Default by an empty string which means the output path of source
+  # files is the path where the csp files locate. If the path isn't prefixed with /, it is relative
   # path of the current working directory.
-  dynamic_views_output_path: ''
+  dynamic_views_output_path: ""
   # json_parser_stack_limit: 1000 by default, the maximum number of stack depth when reading a json string by the jsoncpp library.
   json_parser_stack_limit: 1000
   # enable_unicode_escaping_in_json: true by default, enable unicode escaping in json.
   enable_unicode_escaping_in_json: true
-  # float_precision_in_json: set precision of float number in json. 
+  # float_precision_in_json: set precision of float number in json.
   float_precision_in_json:
-    # precision: 0 by default, 0 means use the default precision of the jsoncpp lib. 
+    # precision: 0 by default, 0 means use the default precision of the jsoncpp lib.
     precision: 0
-    # precision_type: must be "significant" or "decimal", defaults to "significant" that means 
-    # setting max number of significant digits in string, "decimal" means setting max number of 
+    # precision_type: must be "significant" or "decimal", defaults to "significant" that means
+    # setting max number of significant digits in string, "decimal" means setting max number of
     # digits after "." in string
     precision_type: significant
   # log: Set log output, drogon output logs to stdout by default
@@ -195,7 +194,7 @@ app:
     # log_path: ./
     # logfile_base_name: Log file base name,empty by default which means drogon names logfile as
     # drogon.log ...
-    logfile_base_name: ''
+    logfile_base_name: ""
     # log_size_limit: 100000000 bytes by default,
     # When the log file size reaches "log_size_limit", the log file is switched.
     log_size_limit: 100000000
@@ -210,7 +209,7 @@ app:
   handle_sig_term: true
   # relaunch_on_error: False by default, if true, the program will be restart by the parent after exiting;
   relaunch_on_error: false
-  # use_sendfile: True by default, if true, the program 
+  # use_sendfile: True by default, if true, the program
   # uses sendfile() system-call to send static files to clients;
   use_sendfile: true
   # use_gzip: True by default, use gzip to compress the response body's content;
@@ -229,31 +228,31 @@ app:
         - post
       filters:
         - FilterClassName
-  # idle_connection_timeout: Defaults to 60 seconds, the lifetime 
+  # idle_connection_timeout: Defaults to 60 seconds, the lifetime
   # of the connection without read or write
   idle_connection_timeout: 60
   # server_header_field: Set the 'Server' header field in each response sent by drogon,
   # empty string by default with which the 'Server' header field is set to "Server: drogon/version string\r\n"
-  server_header_field: ''
-  # enable_server_header: Set true to force drogon to add a 'Server' header to each HTTP response. The default 
+  server_header_field: ""
+  # enable_server_header: Set true to force drogon to add a 'Server' header to each HTTP response. The default
   # value is true.
   enable_server_header: true
-  # enable_date_header: Set true to force drogon to add a 'Date' header to each HTTP response. The default 
+  # enable_date_header: Set true to force drogon to add a 'Date' header to each HTTP response. The default
   # value is true.
   enable_date_header: true
-  # keepalive_requests: Set the maximum number of requests that can be served through one keep-alive connection. 
+  # keepalive_requests: Set the maximum number of requests that can be served through one keep-alive connection.
   # After the maximum number of requests are made, the connection is closed.
   # The default value of 0 means no limit.
   keepalive_requests: 0
-  # pipelining_requests: Set the maximum number of unhandled requests that can be cached in pipelining buffer. 
+  # pipelining_requests: Set the maximum number of unhandled requests that can be cached in pipelining buffer.
   # After the maximum number of requests are made, the connection is closed.
   # The default value of 0 means no limit.
   pipelining_requests: 0
-  # gzip_static: If it is set to true, when the client requests a static file, drogon first finds the compressed 
+  # gzip_static: If it is set to true, when the client requests a static file, drogon first finds the compressed
   # file with the extension ".gz" in the same path and send the compressed file to the client.
   # The default value of gzip_static is true.
   gzip_static: true
-  # br_static: If it is set to true, when the client requests a static file, drogon first finds the compressed 
+  # br_static: If it is set to true, when the client requests a static file, drogon first finds the compressed
   # file with the extension ".br" in the same path and send the compressed file to the client.
   # The default value of br_static is true.
   br_static: true
@@ -276,8 +275,8 @@ app:
   enabled_compresed_request: false
 # plugins: Define all plugins running in the application
 plugins:
-    # name: The class name of the plugin
-  - name: '' # drogon::plugin::SecureSSLRedirector
+  # name: The class name of the plugin
+  - name: "" # drogon::plugin::SecureSSLRedirector
     # dependencies: Plugins that the plugin depends on. It can be commented out
     dependencies: []
     # config: The configuration of the plugin. This json object is the parameter to initialize the plugin.
@@ -285,12 +284,11 @@ plugins:
     config:
       ssl_redirect_exempt:
         - .*\.jpg
-      secure_ssl_host: 'localhost:8849'
-# custom_config: custom configuration for users. This object can be get by the app().getCustomConfig() method. 
+      secure_ssl_host: "localhost:8849"
+# custom_config: custom configuration for users. This object can be get by the app().getCustomConfig() method.
 custom_config:
   realm: drogonRealm
   opaque: drogonOpaque
   credentials:
     - user: drogon
       password: dr0g0n
-
