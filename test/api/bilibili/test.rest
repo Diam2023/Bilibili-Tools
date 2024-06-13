@@ -1,0 +1,5 @@
+GET https://api.live.bilibili.com/live_user/v1/Master/info?uid=689460774 HTTP/1.1
+
+
+###
+GET https://api.live.bilibili.com/room/v1/Room/get_info?room_id=30652824 HTTP/1.1
