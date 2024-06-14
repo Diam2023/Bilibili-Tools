@@ -1,0 +1,38 @@
+version: '3'
+
+# Networking: https://www.architect.io/blog/2023-03-23/manage-networking-with-docker-compose/
+
+services:
+  mysql:
+    image: mysql:8.2.0
+    networks:
+      - database
+    expose:
+      - 3306
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
+      MYSQL_DATABASE: bilibili_database
+      MYSQL_ALLOW_EMPTY_PASSWORD: yes
+      MYSQL_USER: server
+      MYSQL_PASSWORD: y2A@kw9&
+    container_name: bilibili-mysql-compose
+    restart: always
+    volumes:
+      - "./mysql/sql/:/docker-entrypoint-initdb.d"
+    command: --default-authentication-plugin=caching_sha2_password
+
+  redis:
+    build:
+      context: redis
+      dockerfile: Dockerfile
+    networks:
+      - cache
+    expose:
+      - 6379
+    container_name: bilibili-redis-compose
+    restart: always
+    volumes:
+      - "./redis/db/:/data"
+
+  # Server
+  # Net: cache database

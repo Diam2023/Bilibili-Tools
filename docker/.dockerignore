@@ -1,0 +1,5 @@
+*build*
+.ccls-cache
+.idea
+.ccls
+db
