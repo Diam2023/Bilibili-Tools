@@ -24,10 +24,18 @@ static void runServer()
     drogon::app().run();
 }
 
-int main()
+int main(int argc, const char **argv)
 {
-    // drogon::app().addListener("0.0.0.0", 5555);
-    drogon::app().loadConfigFile("../../config.json");
+    if (argc >= 1)
+    {
+        LOG_INFO << "LOAD CONFIG FROM ARG: " << argv[1];
+        drogon::app().loadConfigFile(argv[1]);
+    }
+    else
+    {
+        // drogon::app().addListener("0.0.0.0", 5555);
+        drogon::app().loadConfigFile("../../config.json");
+    }
 
     auto thr = std::thread([]() {
         try
