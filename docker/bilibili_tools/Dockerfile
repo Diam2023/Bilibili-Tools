@@ -33,14 +33,6 @@ RUN chmod +x ./build.sh
 
 RUN ./build.sh
 
-ENV SITE_ROOT="$SERVER_ROOT/site"
-
-WORKDIR $SITE_ROOT
-
-RUN yarn install
-
-RUN yarn build
-
 ENV BIN_DIR="$SERVER_ROOT/build"
 
 WORKDIR $BIN_DIR
@@ -49,4 +41,4 @@ EXPOSE 8099
 
 COPY config.json /install/BiliBiliTools/config/config.json
 
-CMD [ "/install/BiliBiliTools/build/BiliBiliTools", "/install/BiliBiliTools/config/config.json" ]
+# CMD [ "/install/BiliBiliTools/build/BiliBiliTools", "/install/BiliBiliTools/config/config.json" ]
