@@ -1,6 +1,6 @@
 #include "BiliBiliRoomInfo.h"
 
-namespace core::room
+namespace bilibili::model
 {
 
 RoomInfo::RoomInfo()
@@ -36,4 +36,4 @@ RoomInfo::~RoomInfo()
 {
 }
 
-}  // namespace core::room
+}  // namespace bilibili::model

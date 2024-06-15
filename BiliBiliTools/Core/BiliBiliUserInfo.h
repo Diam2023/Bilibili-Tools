@@ -1,9 +1,10 @@
-#include <string>
-#include <string_view>
-#include <cstdint>
-#include <memory>
+#ifndef BILIBILIUSERINFO_H
+#define BILIBILIUSERINFO_H
 
-namespace core::user
+#include <string>
+#include <cstdint>
+
+namespace bilibili::model
 {
 
 /**
@@ -14,6 +15,7 @@ class UserInfo
   public:
     UserInfo();
     UserInfo(const std::string &id_,
+             const std::string &roomId_,
              const std::string &name_,
              const std::string &headerUrl_,
              uint64_t level_);
@@ -61,11 +63,24 @@ class UserInfo
         level = level_;
     }
 
+    std::string getRoomId() const
+    {
+        return roomId;
+    }
+
+    void setRoomId(const std::string &roomId_)
+    {
+        roomId = roomId_;
+    }
+
   private:
     std::string id;
+    std::string roomId;
     std::string name;
     std::string headerUrl;
     uint64_t level;
 };
 
-}  // namespace core::user
+}  // namespace bilibili::model
+
+#endif  // BILIBILIUSERINFO_H

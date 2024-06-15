@@ -1,13 +1,12 @@
+#ifndef BILIBILIROOMINFO_H
+#define BILIBILIROOMINFO_H
+
 #include <string>
-#include <string_view>
 
-namespace core::user
+namespace bilibili::model
 {
+
 class UserInfo;
-}  // namespace core::user
-
-namespace core::room
-{
 
 /**
  * Live Room Info
@@ -107,4 +106,6 @@ class RoomInfo
     std::string frameImage;  // 帧截图
 };
 
-}  // namespace core::room
+}  // namespace bilibili::model
+
+#endif  // BILIBILIROOMINFO_H

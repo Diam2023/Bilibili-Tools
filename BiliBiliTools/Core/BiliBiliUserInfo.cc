@@ -1,6 +1,6 @@
 #include "BiliBiliUserInfo.h"
 
-namespace core::user
+namespace bilibili::model
 {
 
 UserInfo::UserInfo()
@@ -8,6 +8,7 @@ UserInfo::UserInfo()
 }
 
 UserInfo::UserInfo(const std::string &id_,
+                   const std::string &roomId_,
                    const std::string &name_,
                    const std::string &headerUrl_,
                    uint64_t level_)
@@ -27,4 +28,4 @@ UserInfo::~UserInfo()
 {
 }
 
-}  // namespace core::user
+}  // namespace bilibili::model
