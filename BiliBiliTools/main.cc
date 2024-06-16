@@ -3,9 +3,8 @@
 #include <trantor/utils/Logger.h>
 #include <thread>
 
-#include "BiliBiliCoreFetchClient.h"
+#include "BiliBiliFetchClient.h"
 #include "BiliBiliRoomInfo.h"
-#include "LiveFetch.h"
 
 #ifdef __linux__
 #include <sys/socket.h>
@@ -46,7 +45,7 @@ int main(int argc, const char **argv)
     auto thr = std::thread([]() {
         try
         {
-            auto status = bilibili::tools::FetchRoomStatusByUserId("689460774");
+            auto status = bilibili::api::FetchRoomStatusByUserId("689460774");
             if (status == bilibili::model::RoomInfo::LiveStatus::OnLine)
             {
                 LOG_INFO << "直播中";

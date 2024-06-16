@@ -11,9 +11,11 @@ endif ()
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/controllers CTL_SRC)
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/filters FILTER_SRC)
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/plugins PLUGIN_SRC)
-aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/models MODEL_SRC)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/Models MODEL_SRC)
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/Core CORE_SRC)
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/Tools TOOLS_SRC)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/Cq CQ_SRC)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/App APP_SRC)
 
 # ##############################################################################
 # If you include the drogon source code locally in your project, use this method
@@ -37,10 +39,12 @@ drogon_create_views(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/views
 
 target_include_directories(${PROJECT_NAME}
                            PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
-                                   ${CMAKE_CURRENT_SOURCE_DIR}/models
+                                   ${CMAKE_CURRENT_SOURCE_DIR}/Models
                                    ${CMAKE_CURRENT_SOURCE_DIR}/Common
                                    ${CMAKE_CURRENT_SOURCE_DIR}/Core
                                    ${CMAKE_CURRENT_SOURCE_DIR}/Tools
+                                   ${CMAKE_CURRENT_SOURCE_DIR}/Cq
+                                   ${CMAKE_CURRENT_SOURCE_DIR}/App
                                    )
 target_sources(${PROJECT_NAME}
                PRIVATE
@@ -50,7 +54,9 @@ target_sources(${PROJECT_NAME}
                ${PLUGIN_SRC}
                ${MODEL_SRC}
                ${TOOLS_SRC}
-               ${CORE_SRC})
+               ${CORE_SRC}
+               ${CQ_SRC}
+               ${APP_SRC})
 # ##############################################################################
 # uncomment the following line for dynamically loading views 
 # set_property(TARGET ${PROJECT_NAME} PROPERTY ENABLE_EXPORTS ON)

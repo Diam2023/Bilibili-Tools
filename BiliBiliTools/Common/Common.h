@@ -4,26 +4,10 @@
 #include <cstdint>
 
 /**
- * Redis Token to user ID cache
+ * @brief 管理员缓存
+ *
  */
-const static char *TOKEN_PREFIX = "TK:";
-
-/**
- * Redis QQ ID to Token Map
- */
-const static char *QK_PREFIX = "QK:";
-
-/**
- * Redis QQ ID to bot ID Cache
- */
-const static char *QB_PREFIX = "QB:";
-
-/**
- * Redis User ID To QQ ID
- */
-const static char *UQ_PREFIX = "UQ:";
-
-const static char *MQTT_CACHE_NAME = "mqtt:cache";
+const static char *ADMIN_CACHE_SET_PREFIX = "AC:SET";
 
 /**
  * Default permission

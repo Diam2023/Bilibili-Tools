@@ -6,11 +6,7 @@
 
 #include <drogon/drogon.h>
 
-#include "CqPrivateChatMessageFilter.h"
-#include "CqAuthedMessageHandler.h"
-#include "CqNoFilterMessage.h"
 #include "CqConnectionPool.h"
-#include "CqAuthMessageFilter.h"
 
 void cq::CqMessageManager::registerHandler(
     const cq::CqMessageHandlerType &handler)

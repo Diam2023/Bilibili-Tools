@@ -16,6 +16,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <thread>
+#include <unordered_map>
 
 namespace cq
 {
@@ -33,46 +34,17 @@ class CqCommand
 
     std::thread commandWorkThread;
 
-    // 登入 un pwd
-    std::regex loginRegex;
-    // 登出
-    std::regex logoutRegex;
+    // 指令列表
+    std::unordered_map<std::string, std::regex> commandRegex;
 
-    // 添加设备 sn
-    std::regex addDeviceRegex;
-    // 删除设备 sn
-    std::regex removeDeviceRegex;
-    // 查看所有设备
-    std::regex listDeviceRegex;
+    // 命令缓存前缀
+    std::string commandPrefix;
 
-    // 订阅设备消息 sn
-    std::regex subscribeDeviceMessageRegex;
-    // 取消订阅设备消息 sn
-    std::regex unsubscribeDeviceMessageRegex;
-    // 查看所有订阅消息
-    std::regex listSubscribeDeviceMessageRegex;
+    // 动态帮助信息
+    std::string helpMessage;
 
-    // 查看设备别名
-    std::regex listDeviceAliasRegex;
-    // 添加别名 sn name
-    std::regex addDeviceAliasRegex;
-    // 删除别名 name
-    std::regex removeDeviceAliasRegex;
-
-    std::regex listActionRegex;
-    // 定义操作 {操作名} {设备名/别名} {subtopic} {JSON数据}
-    std::regex makeActionRegex;
-    // 删除操作
-    std::regex deleteActionRegex;
-    // 以Qos0直接发布消息
-    std::regex launchMessageRegex;
-
-    // name打开
-    // name关闭
-    //         std::regex actionCallerRegex
-
-    // show help message
-    std::regex helpRegex;
+    // 详细帮助信息
+    std::unordered_map<std::string, std::string> helpDetailMessage;
 
   public:
     CqCommand();
@@ -82,6 +54,12 @@ class CqCommand
     [[noreturn]] void handlerCommand();
 
     void pushCommand(const CqCommandData &data);
+
+    /**
+     * @brief 初始化 添加Regex
+     *
+     */
+    void init();
 
     SINGLETON_INTERFACE(CqCommand);
 };

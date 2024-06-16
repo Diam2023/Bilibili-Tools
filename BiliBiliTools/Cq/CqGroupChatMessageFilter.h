@@ -1,6 +1,13 @@
-//
-// Created by diam on 24-1-20.
-//
+/**
+ * @file CqGroupChatMessageFilter.h
+ * @author Diam (monoluths-uni@outlook.com)
+ * @brief
+ * @version 0.1-alpha
+ * @date 2024-06-16
+ *
+ * @copyright Copyright (c) 2024 Diam
+ *
+ */
 
 #pragma once
 

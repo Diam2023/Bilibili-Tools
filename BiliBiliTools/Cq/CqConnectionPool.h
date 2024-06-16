@@ -1,9 +1,15 @@
-//
-// Created by diam on 24-1-19.
-//
-
-#ifndef IOTSERVER_CQCONNECTIONPOOL_H
-#define IOTSERVER_CQCONNECTIONPOOL_H
+/**
+ * @file CqConnectionPool.h
+ * @author Diam (monoluths-uni@outlook.com)
+ * @brief
+ * @version 0.1-alpha
+ * @date 2024-06-16
+ *
+ * @copyright Copyright (c) 2024 Diam
+ *
+ */
+#ifndef CQCONNECTIONPOOL_H
+#define CQCONNECTIONPOOL_H
 
 #include <drogon/WebSocketConnection.h>
 #include <condition_variable>
@@ -52,4 +58,4 @@ class CqConnectionPool
 
 }  // namespace cq
 
-#endif  // IOTSERVER_CQCONNECTIONPOOL_H
+#endif  // CQCONNECTIONPOOL_H
