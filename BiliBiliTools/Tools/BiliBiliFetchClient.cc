@@ -1,11 +1,10 @@
-#include "BiliBiliCoreFetchClient.h"
+#include "BiliBiliFetchClient.h"
 
 #include <drogon/HttpTypes.h>
 #include <trantor/utils/Logger.h>
 
 #include <exception>
 #include <future>
-#include <iostream>
 #include <memory>
 #include <string>
 
@@ -163,4 +162,22 @@ std::shared_ptr<bilibili::model::RoomInfo> bilibili::api::FetchClient::
             }
         });
     return prom->get_future().get();
+}
+
+bilibili::model::RoomInfo::LiveStatus bilibili::api::FetchRoomStatusByUserId(
+    const std::string &id_)
+{
+    auto userInfo =
+        bilibili::api::FetchClient::getInstance().fetchUserInfoByUserId(id_);
+    if (userInfo->getRoomId() == "0" || userInfo->getRoomId().empty())
+    {
+        throw bilibili::api::FetchClientException("User Not Found");
+    }
+
+    auto roomId = userInfo->getRoomId();
+
+    auto roomInfo =
+        bilibili::api::FetchClient::getInstance().fetchRoomInfoByRoomId(roomId);
+
+    return roomInfo->getLiveStatus();
 }
