@@ -35,76 +35,72 @@
         //     ]
         // }
     ],
-    // "db_clients": [
-    //     {
-    //         //name: Name of the client,'default' by default
-    //         //"name":"",
-    //         //rdbms: Server type, postgresql,mysql or sqlite3, "postgresql" by default
-    //         "rdbms": "postgresql",
-    //         //filename: Sqlite3 db file name
-    //         //"filename":"",
-    //         //host: Server address,localhost by default
-    //         "host": "127.0.0.1",
-    //         //port: Server port, 5432 by default
-    //         "port": 5432,
-    //         //dbname: Database name
-    //         "dbname": "test",
-    //         //user: 'postgres' by default
-    //         "user": "",
-    //         //passwd: '' by default
-    //         "passwd": "",
-    //         //is_fast: false by default, if it is true, the client is faster but user can't call
-    //         //any synchronous interface of it.
-    //         "is_fast": false,
-    //         //client_encoding: The character set used by the client. it is empty string by default which 
-    //         //means use the default character set.
-    //         //"client_encoding": "",
-    //         //number_of_connections: 1 by default, if the 'is_fast' is true, the number is the number of  
-    //         //connections per IO thread, otherwise it is the total number of all connections.  
-    //         "number_of_connections": 1,
-    //         //timeout: -1.0 by default, in seconds, the timeout for executing a SQL query.
-    //         //zero or negative value means no timeout.
-    //         "timeout": -1.0,
-    //         //"auto_batch": this feature is only available for the PostgreSQL driver(version >= 14.0), see
-    //         // the wiki for more details.
-    //         "auto_batch": false
-    //     }
-    // ],
-    // "redis_clients": [
-    //     {
-    //         //name: Name of the client,'default' by default
-    //         //"name":"",
-    //         //host: Server IP, 127.0.0.1 by default
-    //         "host": "127.0.0.1",
-    //         //port: Server port, 6379 by default
-    //         "port": 6379,
-    //         //username: '' by default which means 'default' in redis ACL
-    //         "username": "",
-    //         //passwd: '' by default
-    //         "passwd": "",
-    //         //db index: 0 by default
-    //         "db": 0,
-    //         //is_fast: false by default, if it is true, the client is faster but user can't call
-    //         //any synchronous interface of it.
-    //         "is_fast": false,
-    //         //number_of_connections: 1 by default, if the 'is_fast' is true, the number is the number of  
-    //         //connections per IO thread, otherwise it is the total number of all connections.  
-    //         "number_of_connections": 1,
-    //         //timeout: -1.0 by default, in seconds, the timeout for executing a command.
-    //         //zero or negative value means no timeout.
-    //         "timeout": -1.0
-    //     }
-    // ],
+    "db_clients": [
+        {
+            //name: Name of the client,'default' by default
+            "rdbms": "mysql",
+            //host: Server address,localhost by default
+            "host": "127.0.0.1",
+            //port: Server port, 5432 by default
+            "port": 3306,
+            //dbname: Database name
+            "dbname": "bilibili_database",
+            //user: 'postgres' by default
+            "user": "server",
+            //passwd: '' by default
+            "passwd": "y2A@kw9&",
+            //is_fast: false by default, if it is true, the client is faster but user can't call
+            //any synchronous interface of it.
+            "is_fast": false,
+            //client_encoding: The character set used by the client. it is empty string by default which 
+            //means use the default character set.
+            //"client_encoding": "",
+            //number_of_connections: 1 by default, if the 'is_fast' is true, the number is the number of  
+            //connections per IO thread, otherwise it is the total number of all connections.  
+            "number_of_connections": 1,
+            //timeout: -1.0 by default, in seconds, the timeout for executing a SQL query.
+            //zero or negative value means no timeout.
+            "timeout": -1.0,
+            //"auto_batch": this feature is only available for the PostgreSQL driver(version >= 14.0), see
+            // the wiki for more details.
+            "auto_batch": false
+        }
+    ],
+    "redis_clients": [
+        {
+            //name: Name of the client,'default' by default
+            //"name":"",
+            //host: Server IP, 127.0.0.1 by default
+            "host": "127.0.0.1",
+            //port: Server port, 6379 by default
+            "port": 6379,
+            //username: '' by default which means 'default' in redis ACL
+            "username": "",
+            //passwd: '' by default
+            "passwd": "iO81@71",
+            //db index: 0 by default
+            "db": 0,
+            //is_fast: false by default, if it is true, the client is faster but user can't call
+            //any synchronous interface of it.
+            "is_fast": false,
+            //number_of_connections: 1 by default, if the 'is_fast' is true, the number is the number of  
+            //connections per IO thread, otherwise it is the total number of all connections.  
+            "number_of_connections": 1,
+            //timeout: -1.0 by default, in seconds, the timeout for executing a command.
+            //zero or negative value means no timeout.
+            "timeout": -1.0
+        }
+    ],
     "app": {
         //number_of_threads: The number of IO threads, 1 by default, if the value is set to 0, the number of threads
         //is the number of CPU cores
-        "number_of_threads": 1,
+        "number_of_threads": 2,
         //enable_session: False by default
         "enable_session": false,
         "session_timeout": 0,
         //string value of SameSite attribute of the Set-Cookie HTTP respone header
         //valid value is either 'Null' (default), 'Lax', 'Strict' or 'None'
-        "session_same_site" : "Null",
+        "session_same_site": "Null",
         //session_cookie_key: The cookie key of the session, "JSESSIONID" by default
         "session_cookie_key": "JSESSIONID",
         //session_max_age: The max age of the session cookie, -1 by default
@@ -311,34 +307,175 @@
     },
     //plugins: Define all plugins running in the application
     "plugins": [
-        {
-            //name: The class name of the plugin
-            "name": "drogon::plugin::PromExporter",
-            //dependencies: Plugins that the plugin depends on. It can be commented out
-            "dependencies": [],
-            //config: The configuration of the plugin. This json object is the parameter to initialize the plugin.
-            //It can be commented out
-            "config": {
-                "path": "/metrics"
-            }
-        },
-        {
-            "name": "drogon::plugin::AccessLogger",
-            "dependencies": [],
-            "config": {
-                    "use_spdlog": false,
-                    "log_path": "",
-                    "log_format": "",
-                    "log_file": "access.log",
-                    "log_size_limit": 0,
-                    "use_local_time": true,
-                    "log_index": 0,
-                    // "show_microseconds": true,
-                    // "custom_time_format": "",
-                    // "use_real_ip": false
-            }
-        }
+        // {
+        //     //name: The class name of the plugin
+        //     "name": "drogon::plugin::PromExporter",
+        //     //dependencies: Plugins that the plugin depends on. It can be commented out
+        //     "dependencies": [],
+        //     //config: The configuration of the plugin. This json object is the parameter to initialize the plugin.
+        //     //It can be commented out
+        //     "config": {
+        //         "path": "/metrics"
+        //     }
+        // },
+        // {
+        //     "name": "drogon::plugin::AccessLogger",
+        //     "dependencies": [],
+        //     "config": {
+        //         "use_spdlog": false,
+        //         "log_path": "",
+        //         "log_format": "",
+        //         "log_file": "access.log",
+        //         "log_size_limit": 0,
+        //         "use_local_time": true,
+        //         "log_index": 0,
+        //         // "show_microseconds": true,
+        //         // "custom_time_format": "",
+        //         // "use_real_ip": false
+        //     }
+        // }
     ],
     //custom_config: custom configuration for users. This object can be get by the app().getCustomConfig() method. 
-    "custom_config": {}
+    "custom_config": {
+        "enabel_private_subscribe": false, // Is enable private chat live push
+        "cqhttp": {
+            "command_prefix": "/", // 命令前缀
+            "command": [
+                {
+                    "name": "subscribe", // 用于触发帮助 触发方式 help subscribe
+                    "command": "subscribe <uid> [timer]",
+                    // 匹配规则
+                    // 解析后 1为uid 2为时间
+                    // 最后 *为容错
+                    // TODO 增加只匹配前缀成功的提示
+                    "match_rule": "subscribe ([0-9]+) ?([0-9]*) *",
+                    "short_help": "订阅用户直播间",
+                    "full_help": { // 详细帮助
+                        "message": [ // 输出信息 分行
+                            "使用方法",
+                            "    subscribe <uid> [timer=60]",
+                            "描述",
+                            "    订阅b站用户id为uid的直播房间状态变动",
+                            "    该命令会自动查询b站直播房间rid",
+                            "    该命令默认60s获取一次直播状态",
+                            "    时间范围{30,10000}",
+                            "使用举例",
+                            "    subscribe 689460774",
+                            "        订阅直播间30652824",
+                            "        每60s检查一次直播状态",
+                            "        状态变化则推送事件",
+                            "    subscribe 689460774 31",
+                            "        每31s检查一次直播状态"
+                        ]
+                    }
+                },
+                {
+                    "name": "subscriber", // 触发字符串
+                    "command": "subscriber <rid> [timer]",
+                    "match_rule": "subscribe ([0-9]+) ?([0-9]*) *",
+                    "short_help": "订阅直播间",
+                    "sub_help_messge": {
+                        "message": [
+                            "使用方法",
+                            "    subscriber <rid> [timer=60]",
+                            "描述",
+                            "    订阅b站直播间id为rid的直播状态变动",
+                            "    该命令默认60s获取一次直播状态",
+                            "使用举例",
+                            "    subscriber 30652824",
+                            "        该命令每60s检查一次直播状态",
+                            "        状态变化则推送事件",
+                            "    subscriber 30652824 31",
+                            "        该命令每30s检查一次直播状态"
+                        ]
+                    }
+                },
+                {
+                    "name": "unsubscribe", // 触发字符串
+                    "command": "unsubscribe <rid>",
+                    "match_rule": "unsubscribe ([0-9]*) *",
+                    "short_help": "取消订阅直播间",
+                    "sub_help_messge": {
+                        "message": [
+                            "使用方法",
+                            "    unsubscribe <rid>",
+                            "描述",
+                            "    取消订阅直播间号为rid的直播间",
+                            "使用举例",
+                            "    unsubscribe 30652824",
+                            "        取消鱼鱼的直播间推送"
+                        ]
+                    }
+                },
+                {
+                    "name": "lists", // 触发字符串
+                    "command": "lists",
+                    "match_rule": "lists *",
+                    "short_help": "查看订阅",
+                    "sub_help_messge": {
+                        "message": [
+                            "使用方法",
+                            "    lists",
+                            "描述",
+                            "    查看该群/该用户的订阅",
+                            "    如果为管理员则查看所有订阅",
+                            "使用举例",
+                            "    lists",
+                            "        查看该群/该用户的订阅"
+                        ]
+                    }
+                },
+                {
+                    "name": "version",
+                    "command": "version",
+                    "match_rule": "version",
+                    "short_help": "查看版本信息"
+                    // 注意处理 sub_help_messge 为空的命令
+                    // 将无法使用help version
+                },
+                {
+                    "name": "help", // 触发字符串
+                    "command": "help [cmd]",
+                    "match_rule": "help ?([a-z]+)",
+                    "short_help": "查看帮助[cmd]为可选命令",
+                    "sub_help_messge": {
+                        "message": [
+                            "使用方法",
+                            "    help [cmd]",
+                            "描述",
+                            "    查看所有帮助信息或者cmd的详细帮助信息",
+                            "使用举例",
+                            "    help",
+                            "        打印全部帮助信息",
+                            "    help lists",
+                            "        打印lists的详细帮助"
+                        ]
+                    }
+                }
+            ],
+            // 视情况 添加多语言支持
+            "hint_messages": [ // 提示信息
+                "软件版本: [%s]",
+                "未知错误: [%s]!",
+                "时间超出范围: %d!",
+                "订阅直播间[%s]成功!",
+                "用户[%s]的房间不存在!",
+                "直播间[%s]不存在!",
+                "取消订阅直播间[%s]成功!",
+                "直播间[%s]未订阅!",
+                "没有订阅任何直播间!",
+                "订阅直播间列表:"
+            ],
+            "broadcast_message": {
+                // Broadcast message
+                "live_start": [ // 开始直播事件
+                    "用户 %s 直播中!",
+                    "直播间: %s"
+                ],
+                "live_end": [ // 直播结束
+                    "用户 %s 直播结束了!"
+                ]
+            }
+        }
+    }
 }
