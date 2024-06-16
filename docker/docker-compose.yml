@@ -43,8 +43,9 @@ services:
       dockerfile: Dockerfile
     container_name: bilibili_tools
     network_mode: host
-    #extra_hosts:
-    #  - host.docker.internal:host-gateway
     ports:
       - "8099:8099"
     restart: always
+    networks:
+      - database
+      - cache
