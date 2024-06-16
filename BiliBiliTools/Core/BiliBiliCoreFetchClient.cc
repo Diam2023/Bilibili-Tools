@@ -48,6 +48,7 @@ std::shared_ptr<bilibili::model::UserInfo> bilibili::api::FetchClient::
     fetchUserInfoByUserId(const std::string &id_)
 {
     LOG_ERROR_IF(!clientInstance) << "Error Instance";
+    LOG_INFO << "Fetch UserInfo with: " << id_;
     auto req = drogon::HttpRequest::newHttpRequest();
 
     req->setMethod(drogon::Get);
@@ -78,7 +79,6 @@ std::shared_ptr<bilibili::model::UserInfo> bilibili::api::FetchClient::
             try
             {
                 auto jsonObj = response->getJsonObject();
-                LOG_INFO << jsonObj->toStyledString();
                 auto resultCode = (*jsonObj)["code"].asInt();
                 auto resultName =
                     (*jsonObj)["data"]["info"]["uname"].asString();
@@ -111,6 +111,7 @@ std::shared_ptr<bilibili::model::RoomInfo> bilibili::api::FetchClient::
     fetchRoomInfoByRoomId(const std::string &id_)
 {
     LOG_ERROR_IF(!clientInstance) << "Error Instance";
+    LOG_INFO << "Fetch RoomInfo with: " << id_;
     auto req = drogon::HttpRequest::newHttpRequest();
 
     req->setMethod(drogon::Get);
@@ -133,23 +134,21 @@ std::shared_ptr<bilibili::model::RoomInfo> bilibili::api::FetchClient::
             try
             {
                 auto jsonObj = response->getJsonObject();
-                LOG_INFO << jsonObj->toStyledString();
                 auto resultCode = (*jsonObj)["code"].asInt();
                 if (resultCode == 0)
                 {
-                    auto liveStatus =
-                        (*jsonObj)["data"]["info"]["live_status"].asInt();
+                    auto liveStatus = (*jsonObj)["data"]["live_status"].asInt();
                     prom->set_value(std::make_shared<model::RoomInfo>(
-                        (*jsonObj)["data"]["info"]["room_id"].asString(),
-                        (*jsonObj)["data"]["info"]["uid"].asString(),
+                        (*jsonObj)["data"]["room_id"].asString(),
+                        (*jsonObj)["data"]["uid"].asString(),
                         liveStatus == 0
                             ? bilibili::model::RoomInfo::LiveStatus::OffLine
                             : (liveStatus == 1
                                    ? model::RoomInfo::LiveStatus::OnLine
                                    : model::RoomInfo::LiveStatus::Carousel),
-                        (*jsonObj)["data"]["info"]["area_name"].asString(),
-                        (*jsonObj)["data"]["info"]["title"].asString(),
-                        (*jsonObj)["data"]["info"]["keyframe"].asString()));
+                        (*jsonObj)["data"]["area_name"].asString(),
+                        (*jsonObj)["data"]["title"].asString(),
+                        (*jsonObj)["data"]["keyframe"].asString()));
                 }
                 else
                 {

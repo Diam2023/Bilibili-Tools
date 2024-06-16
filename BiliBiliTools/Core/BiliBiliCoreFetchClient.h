@@ -22,10 +22,10 @@ class FetchClient
         "https://api.live.bilibili.com";
 
     constexpr static std::string_view bilibiliUserInfoApiPath =
-        "live_user/v1/Master/info/";
+        "/live_user/v1/Master/info";
 
     constexpr static std::string_view bilibiliRoomInfoApiPath =
-        "room/v1/Room/get_info/";
+        "/room/v1/Room/get_info";
 
     FetchClient();
     FetchClient(FetchClient &&) = delete;

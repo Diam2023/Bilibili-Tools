@@ -1,5 +1,8 @@
 GET https://api.live.bilibili.com/live_user/v1/Master/info?uid=689460774 HTTP/1.1
 
 
+
+# 该API如果没找到房间会返回-1
+# 相比上面获取信息API找不到还是0
 ###
 GET https://api.live.bilibili.com/room/v1/Room/get_info?room_id=30652824 HTTP/1.1

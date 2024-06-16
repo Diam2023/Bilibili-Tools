@@ -9,7 +9,7 @@ bilibili::model::RoomInfo::LiveStatus bilibili::tools::FetchRoomStatusByUserId(
 {
     auto userInfo =
         bilibili::api::FetchClient::getInstance().fetchUserInfoByUserId(id_);
-    if (userInfo->getRoomId() == "0")
+    if (userInfo->getRoomId() == "0" || userInfo->getRoomId().empty())
     {
         throw bilibili::api::FetchClientException("User Not Found");
     }

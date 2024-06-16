@@ -12,7 +12,11 @@ UserInfo::UserInfo(const std::string &id_,
                    const std::string &name_,
                    const std::string &headerUrl_,
                    uint64_t level_)
-    : id(id_), name(name_), headerUrl(headerUrl_), level(level_)
+    : id(id_),
+      roomId(roomId_),
+      name(name_),
+      headerUrl(headerUrl_),
+      level(level_)
 {
 }
 

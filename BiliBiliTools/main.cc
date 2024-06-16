@@ -3,8 +3,14 @@
 #include <trantor/utils/Logger.h>
 #include <thread>
 
+#include "BiliBiliCoreFetchClient.h"
 #include "BiliBiliRoomInfo.h"
 #include "LiveFetch.h"
+
+#ifdef __linux__
+#include <sys/socket.h>
+#include <netinet/tcp.h>
+#endif
 
 // Handler Exit Signal
 static void exitSignalHandler()
@@ -26,7 +32,7 @@ static void runServer()
 
 int main(int argc, const char **argv)
 {
-    if (argc >= 1)
+    if (argc >= 2)
     {
         LOG_INFO << "LOAD CONFIG FROM ARG: " << argv[1];
         drogon::app().loadConfigFile(argv[1]);
