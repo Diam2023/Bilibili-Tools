@@ -24,11 +24,8 @@ aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/App APP_SRC)
 # target_link_libraries(${PROJECT_NAME} PRIVATE drogon)
 #
 # and comment out the following lines
-find_package(Drogon CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE Drogon::Drogon)
+target_link_libraries(${PROJECT_NAME} PRIVATE drogon PUBLIC libmono)
 
-drogon_create_views(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/views
-                    ${CMAKE_CURRENT_BINARY_DIR})
 # use the following line to create views with namespaces.
 # drogon_create_views(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/views
 #                     ${CMAKE_CURRENT_BINARY_DIR} TRUE)
