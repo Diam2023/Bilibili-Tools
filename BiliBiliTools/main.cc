@@ -1,10 +1,11 @@
 #include <drogon/HttpAppFramework.h>
 #include <drogon/drogon.h>
 #include <trantor/utils/Logger.h>
-#include <thread>
 
-#include "BiliBiliFetchClient.h"
-#include "BiliBiliRoomInfo.h"
+#include "BiliBiliSubscribeWorker.h"
+#include "CqChatMessageHandler.h"
+#include "CqCommandHandler.h"
+#include "CqMessageManager.h"
 
 #ifdef __linux__
 #include <sys/socket.h>
@@ -42,24 +43,12 @@ int main(int argc, const char **argv)
         drogon::app().loadConfigFile("../../config.json");
     }
 
-    auto thr = std::thread([]() {
-        try
-        {
-            auto status = bilibili::api::FetchRoomStatusByUserId("689460774");
-            if (status == bilibili::model::RoomInfo::LiveStatus::OnLine)
-            {
-                LOG_INFO << "直播中";
-            }
-            else
-            {
-                LOG_INFO << "未直播";
-            }
-        }
-        catch (const std::exception &e)
-        {
-            LOG_WARN << e.what();
-        }
-    });
+    // 初始化ComandHandler 生成缓存等
+    cq::CqCommandHandler::getInstance().init();
+    // 注册ComandHandler到信息工厂
+    cq::CqMessageManager::getInstance().registerHandler(
+        cq::ChatMessageHandler::getInstance());
+    bilibili::SubscribeWorker::getInstance();
 
     runServer();
 
