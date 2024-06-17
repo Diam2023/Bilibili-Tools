@@ -16,7 +16,7 @@
             //address: Ip address,0.0.0.0 by default
             "address": "0.0.0.0",
             //port: Port number
-            "port": 8080,
+            "port": 8998,
             //https: If true, use https for security,false by default
             "https": false
         }
@@ -46,9 +46,11 @@
             //dbname: Database name
             "dbname": "bilibili_database",
             //user: 'postgres' by default
-            "user": "server",
+            // "user": "server",
+            "user": "root",
             //passwd: '' by default
-            "passwd": "y2A@kw9&",
+            // "passwd": "y2A@kw9&",
+            "passwd": "123456",
             //is_fast: false by default, if it is true, the client is faster but user can't call
             //any synchronous interface of it.
             "is_fast": false,
@@ -306,40 +308,43 @@
         "enabled_compressed_request": false
     },
     //plugins: Define all plugins running in the application
-    "plugins": [
-        // {
-        //     //name: The class name of the plugin
-        //     "name": "drogon::plugin::PromExporter",
-        //     //dependencies: Plugins that the plugin depends on. It can be commented out
-        //     "dependencies": [],
-        //     //config: The configuration of the plugin. This json object is the parameter to initialize the plugin.
-        //     //It can be commented out
-        //     "config": {
-        //         "path": "/metrics"
-        //     }
-        // },
-        // {
-        //     "name": "drogon::plugin::AccessLogger",
-        //     "dependencies": [],
-        //     "config": {
-        //         "use_spdlog": false,
-        //         "log_path": "",
-        //         "log_format": "",
-        //         "log_file": "access.log",
-        //         "log_size_limit": 0,
-        //         "use_local_time": true,
-        //         "log_index": 0,
-        //         // "show_microseconds": true,
-        //         // "custom_time_format": "",
-        //         // "use_real_ip": false
-        //     }
-        // }
-    ],
+    // "plugins": [
+    // {
+    //     //name: The class name of the plugin
+    //     "name": "drogon::plugin::PromExporter",
+    //     //dependencies: Plugins that the plugin depends on. It can be commented out
+    //     "dependencies": [],
+    //     //config: The configuration of the plugin. This json object is the parameter to initialize the plugin.
+    //     //It can be commented out
+    //     "config": {
+    //         "path": "/metrics"
+    //     }
+    // },
+    // {
+    //     "name": "drogon::plugin::AccessLogger",
+    //     "dependencies": [],
+    //     "config": {
+    //         "use_spdlog": false,
+    //         "log_path": "",
+    //         "log_format": "",
+    //         "log_file": "access.log",
+    //         "log_size_limit": 0,
+    //         "use_local_time": true,
+    //         "log_index": 0,
+    //         // "show_microseconds": true,
+    //         // "custom_time_format": "",
+    //         // "use_real_ip": false
+    //     }
+    // }
+    // ],
     //custom_config: custom configuration for users. This object can be get by the app().getCustomConfig() method. 
     "custom_config": {
         "enabel_private_subscribe": false, // Is enable private chat live push
+        "default_fetch_delay": 60, // 默认获取时间周期
         "cqhttp": {
+            "bot_name": "小鱼bot",
             "command_prefix": "/", // 命令前缀
+            "short_help_prefix": "    ",
             "command": [
                 {
                     "name": "subscribe", // 用于触发帮助 触发方式 help subscribe
@@ -348,7 +353,7 @@
                     // 解析后 1为uid 2为时间
                     // 最后 *为容错
                     // TODO 增加只匹配前缀成功的提示
-                    "match_rule": "subscribe ([0-9]+) ?([0-9]*) *",
+                    "match_rule": "(subscribe) ([0-9]+) ?([0-9]*) *",
                     "short_help": "订阅用户直播间",
                     "full_help": { // 详细帮助
                         "message": [ // 输出信息 分行
@@ -372,9 +377,9 @@
                 {
                     "name": "subscriber", // 触发字符串
                     "command": "subscriber <rid> [timer]",
-                    "match_rule": "subscribe ([0-9]+) ?([0-9]*) *",
+                    "match_rule": "(subscribe) ([0-9]+) ?([0-9]*) *",
                     "short_help": "订阅直播间",
-                    "sub_help_messge": {
+                    "full_help": {
                         "message": [
                             "使用方法",
                             "    subscriber <rid> [timer=60]",
@@ -393,9 +398,9 @@
                 {
                     "name": "unsubscribe", // 触发字符串
                     "command": "unsubscribe <rid>",
-                    "match_rule": "unsubscribe ([0-9]*) *",
+                    "match_rule": "(unsubscribe) ([0-9]*) *",
                     "short_help": "取消订阅直播间",
-                    "sub_help_messge": {
+                    "full_help": {
                         "message": [
                             "使用方法",
                             "    unsubscribe <rid>",
@@ -410,9 +415,9 @@
                 {
                     "name": "lists", // 触发字符串
                     "command": "lists",
-                    "match_rule": "lists *",
+                    "match_rule": "(lists) *",
                     "short_help": "查看订阅",
-                    "sub_help_messge": {
+                    "full_help": {
                         "message": [
                             "使用方法",
                             "    lists",
@@ -428,7 +433,7 @@
                 {
                     "name": "version",
                     "command": "version",
-                    "match_rule": "version",
+                    "match_rule": "(version)",
                     "short_help": "查看版本信息"
                     // 注意处理 sub_help_messge 为空的命令
                     // 将无法使用help version
@@ -436,9 +441,9 @@
                 {
                     "name": "help", // 触发字符串
                     "command": "help [cmd]",
-                    "match_rule": "help ?([a-z]+)",
+                    "match_rule": "(help) ?([a-z]*)",
                     "short_help": "查看帮助[cmd]为可选命令",
-                    "sub_help_messge": {
+                    "full_help": {
                         "message": [
                             "使用方法",
                             "    help [cmd]",
@@ -455,16 +460,17 @@
             ],
             // 视情况 添加多语言支持
             "hint_messages": [ // 提示信息
-                "软件版本: [%s]",
-                "未知错误: [%s]!",
-                "时间超出范围: %d!",
-                "订阅直播间[%s]成功!",
-                "用户[%s]的房间不存在!",
-                "直播间[%s]不存在!",
-                "取消订阅直播间[%s]成功!",
-                "直播间[%s]未订阅!",
-                "没有订阅任何直播间!",
-                "订阅直播间列表:"
+                "软件版本: [%s]", // 0
+                "未知错误: [%s]!", // 1
+                "时间超出范围: %d!", // 2
+                "订阅直播间[%s]成功!", // 3
+                "用户[%s]的房间不存在!", // 4
+                "直播间[%s]不存在!", // 5
+                "取消订阅直播间[%s]成功!", // 6
+                "直播间[%s]未订阅!", // 7
+                "没有订阅任何直播间!", // 8
+                "订阅直播间列表:", // 9
+                "没有找到[%s]命令的帮助!" // 10
             ],
             "broadcast_message": {
                 // Broadcast message
