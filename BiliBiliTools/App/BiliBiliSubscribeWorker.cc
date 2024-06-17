@@ -203,6 +203,7 @@ void bilibili::SubscribeWorker::work()
                                   << r.getValueOfSubscribeTarget();
                         continue;
                     }
+                    // BUG Remove Muti-instance
 
                     // Rule
                     auto res = cache.emplace_back(
