@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include "Common.h"
 #include "CqMessageHandler.h"
 
 #include <queue>
@@ -46,20 +47,21 @@ class CqMessageManager
   public:
     CqMessageManager();
 
+    /**
+     * @brief 接收到消息的处理
+     *
+     * @param data
+     */
     void messageIn(const cq::CqMessageData &data);
 
     void messageIn(cq::CqMessageData &&data);
 
-    // TODO 添加群组发送消息
     /**
-     * Message output
-     * @param botId
-     * @param targetId
-     * @param message
+     * @brief 发送信息
+     *
+     * @param data 信息结构
      */
-    void messageOut(const std::string &botId,
-                    const std::string &targetId,
-                    const std::string &message);
+    void messageOut(const cq::CqMessageData &data);
 
     /**
      * Do Not Use This Api in multi-thread
@@ -67,14 +69,12 @@ class CqMessageManager
      */
     void registerHandler(const CqMessageHandlerType &handler);
 
+    void registerHandler(CqMessageHandlerType &&handler);
+
     // Do not call this
     [[noreturn]] void worker();
 
-    static CqMessageManager &getInstance()
-    {
-        static CqMessageManager manager;
-        return manager;
-    }
+    SINGLETON_INTERFACE(CqMessageManager);
 };
 
 }  // namespace cq

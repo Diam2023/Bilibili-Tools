@@ -48,6 +48,15 @@ std::string CqConnectionPool::getId(
     return "";
 }
 
+std::string CqConnectionPool::getOnlineBotId()
+{
+    if (!connectionPool.empty())
+    {
+        return connectionPool[0].first;
+    }
+    return "";
+}
+
 drogon::WebSocketConnectionPtr CqConnectionPool::getOutPtr(
     const std::string &botId)
 {

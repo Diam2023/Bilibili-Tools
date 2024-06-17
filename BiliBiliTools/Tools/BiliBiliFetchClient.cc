@@ -181,3 +181,23 @@ bilibili::model::RoomInfo::LiveStatus bilibili::api::FetchRoomStatusByUserId(
 
     return roomInfo->getLiveStatus();
 }
+
+std::string bilibili::api::FetchRoomIdByUserId(const std::string &id_)
+{
+    auto userInfo =
+        bilibili::api::FetchClient::getInstance().fetchUserInfoByUserId(id_);
+    if (userInfo->getRoomId() == "0" || userInfo->getRoomId().empty())
+    {
+        throw bilibili::api::FetchClientException("User Not Found");
+    }
+    return userInfo->getRoomId();
+}
+
+bilibili::model::RoomInfo::LiveStatus bilibili::api::FetchRoomStatusByRoomId(
+    const std::string &id_)
+{
+    auto roomInfo =
+        bilibili::api::FetchClient::getInstance().fetchRoomInfoByRoomId(id_);
+
+    return roomInfo->getLiveStatus();
+}

@@ -81,9 +81,27 @@ class FetchClientException final : public std::exception
 /**
  * @brief 简化获取房间直播状态
  *
- * @return id_ 用户id
+ * @param id_ 用户id
+ * @return bilibili::model::RoomInfo::LiveStatus
  */
 bilibili::model::RoomInfo::LiveStatus FetchRoomStatusByUserId(
+    const std::string &id_);
+
+/**
+ * @brief 使用用户号获取房间号
+ *
+ * @param id_ 用户id
+ * @return std::string
+ */
+std::string FetchRoomIdByUserId(const std::string &id_);
+
+/**
+ * @brief 使用房间号获取直播状态
+ *
+ * @param id_ 用户id
+ * @return bilibili::model::RoomInfo::LiveStatus
+ */
+bilibili::model::RoomInfo::LiveStatus FetchRoomStatusByRoomId(
     const std::string &id_);
 
 }  // namespace bilibili::api

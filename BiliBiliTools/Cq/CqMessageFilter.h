@@ -4,9 +4,6 @@
 
 #pragma once
 
-#include <json/json.h>
-#include <string>
-#include <functional>
 #include "CqMessageHandler.h"
 
 namespace cq

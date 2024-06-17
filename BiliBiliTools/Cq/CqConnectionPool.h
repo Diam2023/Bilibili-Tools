@@ -43,6 +43,13 @@ class CqConnectionPool
     std::string getId(const drogon::WebSocketConnectionPtr &);
 
     /**
+     * @brief 获取一个在线的机器人ID
+     *
+     * @return std::string 在线机器人ID
+     */
+    std::string getOnlineBotId();
+
+    /**
      * get outPtr use bot id
      * @param botId bot id
      * @return bot ws connetion ptr

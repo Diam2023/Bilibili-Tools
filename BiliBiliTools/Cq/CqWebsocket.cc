@@ -1,4 +1,5 @@
 #include "CqWebsocket.h"
+#include <trantor/utils/Logger.h>
 
 #include "CqConnectionPool.h"
 
@@ -50,7 +51,7 @@ void CqWebsocket::handleConnectionClosed(
     }
     else
     {
-        LOG_INFO << "WS bot: " << id << " leave";
+        LOG_WARN << "WS bot: " << id << " leave";
     }
     cq::CqConnectionPool::getInstance().removeConnection(wsConnPtr);
 }

@@ -5,8 +5,14 @@
 #include "CqMessageManager.h"
 
 #include <drogon/drogon.h>
+#include <trantor/utils/Logger.h>
 
 #include "CqConnectionPool.h"
+
+void cq::CqMessageManager::registerHandler(cq::CqMessageHandlerType &&handler)
+{
+    callbacks.emplace_back(handler);
+}
 
 void cq::CqMessageManager::registerHandler(
     const cq::CqMessageHandlerType &handler)
@@ -60,22 +66,14 @@ cq::CqMessageManager::CqMessageManager()
     }
 }
 
-void cq::CqMessageManager::messageOut(const std::string &botId,
-                                      const std::string &targetId,
-                                      const std::string &message)
+void cq::CqMessageManager::messageOut(const cq::CqMessageData &data)
 {
     // TODO use worker thread
-    auto ptr = cq::CqConnectionPool::getInstance().getOutPtr(botId);
+    auto ptr = cq::CqConnectionPool::getInstance().getOutPtr(data.first);
     if (ptr)
     {
-        int64_t tid = std::stoll(targetId);
-        Json::Value jsonData;
-        jsonData["action"] = "send_private_msg";
-        jsonData["params"]["message_type"] = "private";
-        jsonData["params"]["user_id"] = tid;
-        jsonData["params"]["message"] = message;
-        jsonData["params"]["auto_escape"] = true;
-        ptr->send(jsonData.toStyledString());
+        LOG_DEBUG << data.second.toStyledString();
+        ptr->send(data.second.toStyledString());
     }
     else
     {
