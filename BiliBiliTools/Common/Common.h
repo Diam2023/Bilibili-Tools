@@ -1,8 +1,6 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <cstdint>
-
 /**
  * @brief 管理员缓存
  *
@@ -10,14 +8,10 @@
 const static char *ADMIN_CACHE_SET_PREFIX = "AC:SET";
 
 /**
- * Default permission
+ * @brief 直播状态缓存
+ *
  */
-const static uint32_t DEFAULT_PERMISSION_LEVEL = 100;
-
-/**
- * Admin must bigger than this value
- */
-const static uint32_t DEFAULT_ADMIN_THRESHOLD = 499;
+const static char *LIVE_STATUS_CACHE_PREFIX = "LS:";
 
 #define SINGLETON_INTERFACE(name) \
   public:                         \
