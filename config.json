@@ -340,7 +340,9 @@
     //custom_config: custom configuration for users. This object can be get by the app().getCustomConfig() method. 
     "custom_config": {
         "enabel_private_subscribe": false, // Is enable private chat live push
-        "default_fetch_delay": 60, // 默认获取时间周期
+        "default_fetch_delay": 60, // 默认获取时间周期 s
+        "min_fetch_delay": 30, // 最小获取时间周期
+        "max_fetch_delay": 100000, // 最大获取时间周期
         "cqhttp": {
             "bot_name": "小鱼bot",
             "command_prefix": "/", // 命令前缀
@@ -377,7 +379,7 @@
                 {
                     "name": "subscriber", // 触发字符串
                     "command": "subscriber <rid> [timer]",
-                    "match_rule": "(subscribe) ([0-9]+) ?([0-9]*) *",
+                    "match_rule": "(subscriber) ([0-9]+) ?([0-9]*) *",
                     "short_help": "订阅直播间",
                     "full_help": {
                         "message": [
@@ -469,8 +471,11 @@
                 "取消订阅直播间[%s]成功!", // 6
                 "直播间[%s]未订阅!", // 7
                 "没有订阅任何直播间!", // 8
-                "订阅直播间列表:", // 9
-                "没有找到[%s]命令的帮助!" // 10
+                "订阅的直播间列表:", // 9
+                "没有找到[%s]命令的帮助!", // 10
+                "参数错误!", // 11
+                "取消订阅失败!", // 12
+                "订阅失败!" // 13
             ],
             "broadcast_message": {
                 // Broadcast message

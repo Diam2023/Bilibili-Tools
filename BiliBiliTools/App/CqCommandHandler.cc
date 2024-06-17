@@ -15,13 +15,20 @@
 #include <drogon/orm/Mapper.h>
 #include <json/value.h>
 #include <trantor/utils/Logger.h>
+#include <cstddef>
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <exception>
+#include <ostream>
 #include <regex>
 #include <sstream>
 #include <string>
+#include <vector>
+#include "BiliBiliFetchClient.h"
 #include "CqMessageManager.h"
+#include "LiveSubscribe.h"
+#include "drogon/HttpAppFramework.h"
 
 namespace cq
 {
@@ -173,27 +180,208 @@ void CqCommandHandler::versionHandler(const CqChatMessageData &data)
     CqMessageManager::getInstance().messageOut(MakeCqMesageData(outData));
 }
 
+using namespace drogon_model::bilibili_database;
+using namespace drogon::orm;
+
 void CqCommandHandler::listsHandler(const CqChatMessageData &data)
 {
-    
+    Mapper<LiveSubscribe> mapper(drogon::app().getDbClient());
+    auto outData = data;
+    size_t iter = 0;
+    std::stringstream outputStream;
+    std::vector<LiveSubscribe> liveSubscribeList;
+
+    try
+    {
+        liveSubscribeList = mapper.findAll();
+
+        if (liveSubscribeList.size() == 0)
+        {
+            throw std::exception();
+        }
+        outputStream << hintMessages[9].asString() << std::endl;
+    }
+    catch (const std::exception &)
+    {
+        // 没有订阅 或出错
+        outputStream << hintMessages[8].asString();
+    }
+
+    for (auto &liveSubscribe : liveSubscribeList)
+    {
+        iter++;
+
+        // TODO 减轻服务器压力
+        auto roomInfo =
+            bilibili::api::FetchClient::getInstance().fetchRoomInfoByRoomId(
+                liveSubscribe.getValueOfSubscribeTarget());
+        auto userInfo =
+            bilibili::api::FetchClient::getInstance().fetchUserInfoByUserId(
+                roomInfo->getUserId());
+
+        outputStream << "#" << iter << " " << userInfo->getName() << " "
+                     << roomInfo->getId() << std::endl
+                     << "## "
+                     << (liveSubscribe.getValueOfTargetType() == "PRIVATE"
+                             ? "P"
+                             : "G")
+                     << " " << liveSubscribe.getValueOfNotifyTarget();
+
+        if (liveSubscribeList.size() != iter)
+        {
+            // last
+            outputStream << std::endl;
+        }
+    }
+
+    std::get<3>(outData) = outputStream.str();
+    CqMessageManager::getInstance().messageOut(MakeCqMesageData(outData));
 }
 
 void CqCommandHandler::unsubscribeHanlder(const CqChatMessageData &data,
                                           const std::string &rid)
 {
+    Mapper<LiveSubscribe> mapper(drogon::app().getDbClient());
+    auto outData = data;
+
+    memset(tempString, 0, sizeof(tempString));
+    do
+    {
+        if (rid.empty())
+        {
+            sprintf(tempString, "%s", hintMessages[11].asCString());
+            break;
+        }
+        try
+        {
+            auto resultCount =
+                mapper.deleteBy(Criteria(LiveSubscribe::Cols::_subscribe_target,
+                                         CompareOperator::EQ,
+                                         rid));
+
+            if (resultCount == 0)
+            {
+                sprintf(tempString, hintMessages[7].asCString(), rid.c_str());
+            }
+            else
+            {
+                sprintf(tempString, hintMessages[6].asCString(), rid.c_str());
+            }
+        }
+        catch (const std::exception &e)
+        {
+            sprintf(tempString, "%s", hintMessages[12].asCString());
+        }
+    } while (false);
+
+    std::get<3>(outData) = std::string(tempString);
+    CqMessageManager::getInstance().messageOut(MakeCqMesageData(outData));
 }
 
 void CqCommandHandler::subscriberHanlder(const CqChatMessageData &data,
                                          const std::string &rid,
                                          const std::string &timer)
 {
+    ChatSenderIdType senderId = std::get<1>(data);
+    ChatGroupIdType groupId = std::get<2>(data);
+    ChatMessageType messageType = std::get<4>(data);
+    std::string notifyTargetId =
+        (messageType == ChatMessageType::Private) ? senderId : groupId;
+
+    Mapper<LiveSubscribe> mapper(drogon::app().getDbClient());
+    auto outData = data;
+
+    memset(tempString, 0, sizeof(tempString));
+    uint32_t setTime =
+        drogon::app().getCustomConfig()["default_fetch_delay"].asUInt();
+
+    do
+    {
+        if (!timer.empty())
+        {
+            try
+            {
+                auto tempTimer = std::stoll(timer);
+                if ((tempTimer < drogon::app()
+                                     .getCustomConfig()["min_fetch_delay"]
+                                     .asUInt()) ||
+                    (tempTimer > drogon::app()
+                                     .getCustomConfig()["max_fetch_delay"]
+                                     .asUInt()))
+                {
+                    throw std::exception();
+                }
+                // 合法
+                setTime = tempTimer;
+            }
+            catch (const std::exception &)
+            {
+                // 参数错误
+                sprintf(tempString, "%s", hintMessages[11].asCString());
+                break;
+            }
+        }
+
+        if (rid.empty())
+        {
+            sprintf(tempString, "%s", hintMessages[11].asCString());
+            break;
+        }
+
+        try
+        {
+            // 验证room是否存在
+            bilibili::api::FetchClient::getInstance().fetchRoomInfoByRoomId(
+                rid);
+        }
+        catch (const std::exception &)
+        {
+            // 不存在
+            sprintf(tempString, hintMessages[5].asCString(), rid.c_str());
+            break;
+        }
+
+        try
+        {
+            LiveSubscribe ls;
+            ls.setSubscribeTarget(rid);
+            ls.setNotifyTarget(notifyTargetId);
+            ls.setTargetType(messageType == ChatMessageType::Private ? "PRIVATE"
+                                                                     : "GROUP");
+            ls.setCheckTimer(setTime);
+            mapper.insert(ls);
+
+            sprintf(tempString, hintMessages[3].asCString(), rid.c_str());
+        }
+        catch (const std::exception &e)
+        {
+            sprintf(tempString, "%s", hintMessages[13].asCString());
+        }
+    } while (false);
+
+    std::get<3>(outData) = std::string(tempString);
+    CqMessageManager::getInstance().messageOut(MakeCqMesageData(outData));
 }
 
 void CqCommandHandler::subscribeHanlder(const CqChatMessageData &data,
                                         const std::string &uid,
                                         const std::string &timer)
 {
-    // drogon::orm::Mapper<typename T>
+    auto outData = data;
+    std::string roomId;
+    try
+    {
+        roomId = bilibili::api::FetchRoomIdByUserId(uid);
+    }
+    catch (const std::exception &)
+    {
+        sprintf(tempString, hintMessages[4].asCString(), uid.c_str());
+        std::get<3>(outData) = std::string(tempString);
+        CqMessageManager::getInstance().messageOut(MakeCqMesageData(outData));
+        return;
+    }
+
+    subscriberHanlder(data, roomId, timer);
 }
 
 [[noreturn]] void CqCommandHandler::handleCommand()
