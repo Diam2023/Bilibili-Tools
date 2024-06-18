@@ -8,15 +8,17 @@
 #include <sstream>
 #include <string>
 #include <thread>
-#include <tuple>
+#include <vector>
 #include "BiliBiliFetchClient.h"
 #include "BiliBiliRoomInfo.h"
 #include "CqCommandHandler.h"
 #include "CqConnectionPool.h"
 #include "CqMessageManager.h"
+#include "LiveNotify.h"
 #include "LiveSubscribe.h"
 #include "drogon/HttpAppFramework.h"
 #include "drogon/nosql/RedisResult.h"
+#include "drogon/orm/Criteria.h"
 #include "priority_timer.h"
 #include "priority_timer_node.h"
 
@@ -43,21 +45,19 @@ extern "C" void MONO_UnlockTimerQueue(MONO_PriorityTimerQueue_t *queue_)
 
 void *UpdateFetchTask(void *arg)
 {
-    auto input = (std::tuple<cq::ChatSenderIdType,
-                             std::string,
-                             cq::ChatMessageType,
-                             uint32_t> *)arg;
+    auto roomId = *(std::string *)arg;
 
-    auto roomId = std::get<1>(*input);
-    LOG_INFO << "Ontime: " << std::get<0>(*input) << " " << roomId << " "
-             << std::get<3>(*input);
+    LOG_INFO << "Ontime: " << roomId;
+
+    // 查询Notfy内所有subs为roomId的通知对象, 并通知
+
     try
     {
         auto status = bilibili::api::FetchRoomStatusByRoomId(roomId);
         auto statusId = std::make_shared<int>(
             status == bilibili::model::RoomInfo::LiveStatus::OnLine ? 1 : 0);
         drogon::app().getRedisClient()->execCommandAsync(
-            [roomId, statusId, input](const RedisResult &r) {
+            [roomId, statusId](const RedisResult &r) {
                 // 当直播的状态与数据库中不同时就响应
                 if ((r.type() != RedisResultType::kString) ||
                     ((r.type() == RedisResultType::kString) &&
@@ -72,9 +72,36 @@ void *UpdateFetchTask(void *arg)
                         LIVE_STATUS_CACHE_PREFIX,
                         roomId.c_str(),
                         *statusId);
-                    // Notify!
-                    bilibili::SubscribeWorker::getInstance().notify(*input,
-                                                                    *statusId);
+
+                    Mapper<LiveNotify> liveNotifyMapper(
+                        drogon::app().getDbClient());
+                    std::vector<LiveNotify> liveNotifyList;
+                    try
+                    {
+                        liveNotifyList = liveNotifyMapper.findBy(
+                            Criteria(LiveNotify::Cols::_subscribe_target,
+                                     CompareOperator::EQ,
+                                     roomId));
+                    }
+                    catch (const std::exception &)
+                    {
+                        LOG_INFO << roomId << " Has No Notify Target";
+                        return;
+                    }
+
+                    for (auto &liveNotify : liveNotifyList)
+                    {
+                        // qqid roomid qqtid_type
+                        bilibili::NotifyMessageType notifyMessage{
+                            liveNotify.getValueOfNotifyTarget(),
+                            roomId,
+                            (liveNotify.getValueOfTargetType() == "PRIVATE"
+                                 ? cq::ChatMessageType::Private
+                                 : cq::ChatMessageType::Group)};
+                        // Notify!
+                        bilibili::SubscribeWorker::getInstance().notify(
+                            notifyMessage, *statusId);
+                    }
                 }
             },
             [](const auto &e) { LOG_WARN << "Error In Redis Get"; },
@@ -84,7 +111,7 @@ void *UpdateFetchTask(void *arg)
     }
     catch (const std::exception &)
     {
-        LOG_WARN << "Fetch: " << std::get<1>(*input) << " Err";
+        LOG_WARN << "Fetch: " << roomId << " Err";
     }
 
     return nullptr;
@@ -102,10 +129,7 @@ bilibili::SubscribeWorker::SubscribeWorker()
 
 static char tempString[512];
 
-void bilibili::SubscribeWorker::notify(
-    std::tuple<cq::ChatSenderIdType, std::string, cq::ChatMessageType, uint32_t>
-        msg,
-    bool status)
+void bilibili::SubscribeWorker::notify(NotifyMessageType notifyMsg, bool status)
 {
     auto onLineBotId = cq::CqConnectionPool::getInstance().getOnlineBotId();
     if (onLineBotId.empty())
@@ -117,7 +141,7 @@ void bilibili::SubscribeWorker::notify(
     // qqid roomid qqtid_type
     // onLineBotId
 
-    auto roomId = std::get<1>(msg);
+    auto roomId = std::get<1>(notifyMsg);
     // message
     std::string outputMessage;
     std::stringstream tempSS;
@@ -160,8 +184,8 @@ void bilibili::SubscribeWorker::notify(
     }
     outputMessage = tempSS.str();
 
-    auto targetId = std::get<0>(msg);
-    auto targetType = std::get<2>(msg);
+    auto targetId = std::get<0>(notifyMsg);
+    auto targetType = std::get<2>(notifyMsg);
     cq::CqMessageManager::getInstance().messageOut(
         cq::CqCommandHandler::MakeCqMesageData(
             {onLineBotId, targetId, targetId, outputMessage, targetType}));
@@ -189,41 +213,69 @@ void bilibili::SubscribeWorker::work()
             mainTimerQueue = MONO_CreatePriorityQueue();
             MONO_SetTimerQueueEnable(mainTimerQueue, true);
 
-            cache.clear();
+            roomListCache.clear();
 
-            Mapper<LiveSubscribe> mapper(drogon::app().getDbClient());
+            Mapper<LiveSubscribe> liveSubscribeMapper(
+                drogon::app().getDbClient());
             try
             {
-                auto result = mapper.findAll();
-                for (auto &&r : result)
+                auto liveSubscribeList = liveSubscribeMapper.findAll();
+                for (auto &&liveSubscribe : liveSubscribeList)
                 {
-                    if (r.getValueOfCheckTimer() == 0)
+                    if (liveSubscribe.getValueOfCheckTimer() == 0)
                     {
                         LOG_ERROR << "Error Check Timer: "
-                                  << r.getValueOfSubscribeTarget();
+                                  << liveSubscribe.getValueOfSubscribeTarget();
                         continue;
                     }
-                    // BUG Remove Muti-instance
+                    // 缓存到Redis
+
+                    // // 先删除 集合
+                    // try
+                    // {
+                    //     drogon::app().getRedisClient()->execCommandSync(
+                    //         [](auto &r) {},
+                    //         "del %s%s",
+                    //         LIVE_SUBSCRIBE_SET_PREFIX,
+                    //         liveSubscribe.getValueOfSubscribeTarget().c_str());
+                    // }
+                    // catch (const std::exception &)
+                    // {
+                    //     // 抑制异常
+                    // }
+
+                    // // 添加集合
+                    // std::vector<LiveNotify> liveNotifyList;
+                    // try
+                    // {
+                    //     liveNotifyList = liveNotifyMapper.findBy(Criteria(
+                    //         LiveNotify::Cols::_subscribe_target,
+                    //         CompareOperator::EQ,
+                    //         liveSubscribe.getValueOfSubscribeTarget()));
+                    // }
+                    // catch (const std::exception &)
+                    // {
+                    // }
+
+                    // for (const auto &liveNotify : liveNotifyList)
+                    // {
+
+                    // }
 
                     // Rule
-                    auto res = cache.emplace_back(
-                        std::make_tuple(r.getValueOfNotifyTarget(),
-                                        r.getValueOfSubscribeTarget(),
-                                        ((r.getValueOfTargetType() == "PRIVATE")
-                                             ? cq::ChatMessageType::Private
-                                             : cq::ChatMessageType::Group),
-                                        r.getValueOfCheckTimer()));
-                    MONO_PushNode(
-                        mainTimerQueue,
-                        MONO_CreateQueueNodeFull(UpdateFetchTask,
-                                                 1,
-                                                 true,
-                                                 2,
-                                                 UINT8_MAX,
-                                                 r.getValueOfCheckTimer(),
-                                                 UINT8_MAX,
-                                                 (void *)(&res),
-                                                 nullptr));
+                    auto res = roomListCache.emplace_back(
+                        liveSubscribe.getValueOfSubscribeTarget());
+                    MONO_PushNode(mainTimerQueue,
+                                  MONO_CreateQueueNodeFull(
+                                      UpdateFetchTask,
+                                      1,
+                                      true,
+                                      10,
+                                      UINT8_MAX,
+                                      liveSubscribe.getValueOfCheckTimer(),
+                                      UINT8_MAX,
+                                      (void *)(&res),
+                                      nullptr));
                 }
             }
             catch (const DrogonDbException &e)

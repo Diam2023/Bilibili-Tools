@@ -26,9 +26,12 @@
 #include <string>
 #include <vector>
 #include "BiliBiliFetchClient.h"
+#include "BiliBiliSubscribeWorker.h"
 #include "CqMessageManager.h"
+#include "LiveNotify.h"
 #include "LiveSubscribe.h"
 #include "drogon/HttpAppFramework.h"
+#include "drogon/orm/Criteria.h"
 
 namespace cq
 {
@@ -185,7 +188,7 @@ using namespace drogon::orm;
 
 void CqCommandHandler::listsHandler(const CqChatMessageData &data)
 {
-    Mapper<LiveSubscribe> mapper(drogon::app().getDbClient());
+    Mapper<LiveSubscribe> liveSubscribeMapper(drogon::app().getDbClient());
     auto outData = data;
     size_t iter = 0;
     std::stringstream outputStream;
@@ -193,7 +196,7 @@ void CqCommandHandler::listsHandler(const CqChatMessageData &data)
 
     try
     {
-        liveSubscribeList = mapper.findAll();
+        liveSubscribeList = liveSubscribeMapper.findAll();
 
         if (liveSubscribeList.size() == 0)
         {
@@ -219,17 +222,40 @@ void CqCommandHandler::listsHandler(const CqChatMessageData &data)
             bilibili::api::FetchClient::getInstance().fetchUserInfoByUserId(
                 roomInfo->getUserId());
 
+        // 查找该房间的订阅者
+        Mapper<LiveNotify> liveNotifyMapper(drogon::app().getDbClient());
+
         outputStream << "#" << iter << " " << userInfo->getName() << " "
-                     << roomInfo->getId() << std::endl
-                     << "## "
-                     << (liveSubscribe.getValueOfTargetType() == "PRIVATE"
-                             ? "P"
-                             : "G")
-                     << " " << liveSubscribe.getValueOfNotifyTarget();
+                     << roomInfo->getId() << std::endl;
+        try
+        {
+            auto liveNotifyList = liveNotifyMapper.findBy(
+                Criteria(LiveNotify::Cols::_subscribe_target,
+                         CompareOperator::EQ,
+                         roomInfo->getId()));
+            size_t liveSize = 0;
+            for (auto &liveNotify : liveNotifyList)
+            {
+                liveSize++;
+                outputStream
+                    << " ## "
+                    << (liveNotify.getValueOfTargetType() == "PRIVATE" ? "P"
+                                                                       : "G")
+                    << " " << liveNotify.getValueOfNotifyTarget();
+                if (liveSize != liveNotifyList.size())
+                {
+                    outputStream << std::endl;
+                }
+            }
+        }
+        catch (const std::exception &)
+        {
+        }
 
         if (liveSubscribeList.size() != iter)
         {
             // last
+            outputStream << std::endl;
             outputStream << std::endl;
         }
     }
@@ -241,7 +267,8 @@ void CqCommandHandler::listsHandler(const CqChatMessageData &data)
 void CqCommandHandler::unsubscribeHanlder(const CqChatMessageData &data,
                                           const std::string &rid)
 {
-    Mapper<LiveSubscribe> mapper(drogon::app().getDbClient());
+    Mapper<LiveNotify> liveNotifyMapper(drogon::app().getDbClient());
+    Mapper<LiveSubscribe> liveSubscribeMapper(drogon::app().getDbClient());
     auto outData = data;
 
     memset(tempString, 0, sizeof(tempString));
@@ -254,17 +281,24 @@ void CqCommandHandler::unsubscribeHanlder(const CqChatMessageData &data,
         }
         try
         {
-            auto resultCount =
-                mapper.deleteBy(Criteria(LiveSubscribe::Cols::_subscribe_target,
-                                         CompareOperator::EQ,
-                                         rid));
+            // 删除所有订阅
+            auto resultCount = liveSubscribeMapper.deleteBy(
+                Criteria(LiveSubscribe::Cols::_subscribe_target,
+                         CompareOperator::EQ,
+                         rid));
 
-            if (resultCount == 0)
+            auto liveSubscriberesultCount = liveSubscribeMapper.deleteBy(
+                Criteria(LiveSubscribe::Cols::_subscribe_target,
+                         CompareOperator::EQ,
+                         rid));
+            if (resultCount == 0 && liveSubscriberesultCount == 0)
             {
                 sprintf(tempString, hintMessages[7].asCString(), rid.c_str());
             }
             else
             {
+                // 订阅成功
+                bilibili::SubscribeWorker::getInstance().updateCache();
                 sprintf(tempString, hintMessages[6].asCString(), rid.c_str());
             }
         }
@@ -272,6 +306,7 @@ void CqCommandHandler::unsubscribeHanlder(const CqChatMessageData &data,
         {
             sprintf(tempString, "%s", hintMessages[12].asCString());
         }
+
     } while (false);
 
     std::get<3>(outData) = std::string(tempString);
@@ -288,7 +323,8 @@ void CqCommandHandler::subscriberHanlder(const CqChatMessageData &data,
     std::string notifyTargetId =
         (messageType == ChatMessageType::Private) ? senderId : groupId;
 
-    Mapper<LiveSubscribe> mapper(drogon::app().getDbClient());
+    Mapper<LiveNotify> liveNotifyMapper(drogon::app().getDbClient());
+    Mapper<LiveSubscribe> liveSubscribeMapper(drogon::app().getDbClient());
     auto outData = data;
 
     memset(tempString, 0, sizeof(tempString));
@@ -341,21 +377,79 @@ void CqCommandHandler::subscriberHanlder(const CqChatMessageData &data,
             break;
         }
 
+        size_t subscribeCount = 0;
         try
         {
-            LiveSubscribe ls;
-            ls.setSubscribeTarget(rid);
-            ls.setNotifyTarget(notifyTargetId);
-            ls.setTargetType(messageType == ChatMessageType::Private ? "PRIVATE"
-                                                                     : "GROUP");
-            ls.setCheckTimer(setTime);
-            mapper.insert(ls);
+            // [x] 查询subscribe表格内是否存在该订阅
 
+            auto liveSubscribeList = liveSubscribeMapper.findBy(
+                Criteria(LiveSubscribe::Cols::_subscribe_target,
+                         CompareOperator::EQ,
+                         rid));
+            subscribeCount = liveSubscribeList.size();
+        }
+        catch (const std::exception &)
+        {
+            subscribeCount = 0;
+        }
+        if (subscribeCount == 0)
+        {
+            // [x] 没有该订阅就插入订阅信息
+            try
+            {
+                LiveSubscribe ls;
+                ls.setSubscribeTarget(rid);
+                ls.setCheckTimer(setTime);
+                liveSubscribeMapper.insert(ls);
+            }
+            catch (const std::exception &)
+            {
+                // 返回订阅失败
+                sprintf(tempString, "%s", hintMessages[13].asCString());
+                break;
+            }
+        }
+
+        // [ ] 检查是否已经添加过了
+
+        try
+        {
+            auto resultSize = liveNotifyMapper.findBy(
+                Criteria(LiveNotify::Cols::_subscribe_target,
+                         CompareOperator::EQ,
+                         rid) &&
+                Criteria(LiveNotify::Cols::_notify_target,
+                         CompareOperator::EQ,
+                         notifyTargetId));
+            if (resultSize.size() > 0)
+            {
+                // 返回已经订阅了的消息
+                sprintf(tempString, hintMessages[15].asCString(), rid.c_str());
+                break;
+            }
+        }
+        catch (const std::exception &)
+        {
+        }
+
+        try
+        {
+            // [x] 插入唤醒信息到notify表格
+            LiveNotify ln;
+            ln.setSubscribeTarget(rid);
+            ln.setNotifyTarget(notifyTargetId);
+            ln.setTargetType(messageType == ChatMessageType::Private ? "PRIVATE"
+                                                                     : "GROUP");
+            liveNotifyMapper.insert(ln);
+
+            // 更新缓存
+            bilibili::SubscribeWorker::getInstance().updateCache();
             sprintf(tempString, hintMessages[3].asCString(), rid.c_str());
         }
         catch (const std::exception &e)
         {
-            sprintf(tempString, "%s", hintMessages[13].asCString());
+            // 订阅唤醒失败
+            sprintf(tempString, "%s", hintMessages[14].asCString());
         }
     } while (false);
 

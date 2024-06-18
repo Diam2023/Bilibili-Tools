@@ -11,7 +11,6 @@
 #pragma once
 
 #include <atomic>
-#include <cstdint>
 #include <string>
 #include <thread>
 #include <tuple>
@@ -22,6 +21,12 @@
 
 namespace bilibili
 {
+
+/**
+ * @brief qqid roomid qqtid_type
+ */
+using NotifyMessageType =
+    std::tuple<cq::ChatSenderIdType, std::string, cq::ChatMessageType>;
 
 /**
  * @brief 订阅工人
@@ -43,11 +48,7 @@ class SubscribeWorker
      * @param msg
      * @param status
      */
-    void notify(std::tuple<cq::ChatSenderIdType,
-                           std::string,
-                           cq::ChatMessageType,
-                           uint32_t> msg,
-                bool status);
+    void notify(NotifyMessageType notifyMsg, bool status);
 
     /**
      * @brief 工作线程
@@ -75,12 +76,11 @@ class SubscribeWorker
      */
     std::atomic<bool> updateCacheFlag = false;
 
-    // qqid roomid qqtid_type
-    std::vector<std::tuple<cq::ChatSenderIdType,
-                           std::string,
-                           cq::ChatMessageType,
-                           uint32_t>>
-        cache;
+    /**
+     * @brief 用于储存要获取的房间
+     * roomid
+     */
+    std::vector<std::string> roomListCache;
 };
 
 }  // namespace bilibili
