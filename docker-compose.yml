@@ -3,8 +3,35 @@
 # Networking: https://www.architect.io/blog/2023-03-23/manage-networking-with-docker-compose/
 
 services:
+  
+  qsign:
+    image: xzhouqd/qsign:core-1.1.9
+    expose:
+      - 8963
+    environment:
+      BASE_PATH: "/srv/qsign/qsign/txlib/8.9.63"
+    restart: always
+    networks:
+      - cq
+    container_name: cq-sign
+
+  cqhttp:
+    build:
+      context: ./docker/cqhttp
+      dockerfile: Dockerfile
+    container_name: cq-http
+    networks:
+      - backend
+      - cq
+    restart: always
+    depends_on:
+      - qsign
+      - server
+
   mysql:
-    image: mysql:8.2.0
+    build:
+      context: ./docker/mysql
+      dockerfile: Dockerfile
     expose:
       - 3306
     environment:
@@ -17,13 +44,11 @@ services:
     restart: always
     networks:
       - backend
-    volumes:
-      - "./mysql/sql/:/docker-entrypoint-initdb.d"
     command: --default-authentication-plugin=caching_sha2_password
 
   redis:
     build:
-      context: redis
+      context: ./docker/redis
       dockerfile: Dockerfile
     expose:
       - 6379
@@ -31,21 +56,17 @@ services:
       - backend
     container_name: bilibili-redis
     restart: always
-    volumes:
-      - "./redis/db/:/data"
 
-  # Server
-  # Net: cache database
-
-  bilibili_tools:
+  server:
     build:
-      context: bilibili_tools
+      context: .
       dockerfile: Dockerfile
-    container_name: bilibili_tools
+    container_name: bilibili-server
     networks:
       - backend
-    ports:
-      - "8998:8998"
+      - cq
+    expose:
+      - 8998
     restart: always
     depends_on:
       - redis
@@ -53,3 +74,4 @@ services:
 
 networks:
   backend:
+  cq:

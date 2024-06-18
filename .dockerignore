@@ -1,0 +1,11 @@
+build
+.ccls-cache
+.idea
+.ccls
+
+*.pid
+.git
+.cache
+.vscode
+docker
+uploads

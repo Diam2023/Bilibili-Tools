@@ -6,15 +6,21 @@ ENV CC=gcc \
     RANLIB=gcc-ranlib \
     IROOT=/root
 
-RUN pacman -Syu --noconfirm && pacman -S --needed base-devel cmake git c-ares hiredis jsoncpp mariadb yay qt5-mqtt yarn yaml-cpp --noconfirm
+RUN pacman -Syu --noconfirm && pacman -S --needed base-devel cmake c-ares hiredis jsoncpp mariadb --noconfirm
 
 # BiliBiliTools
 
 ENV SERVER_ROOT="$IROOT/BiliBiliTools"
 
-RUN git clone --recursive https://github.com/Diam2023/Bilibili-Tools.git $SERVER_ROOT
+RUN mkdir $SERVER_ROOT
 
 WORKDIR $SERVER_ROOT
+
+RUN ls -l
+
+COPY . $SERVER_ROOT
+
+RUN ls -l
 
 # 赋予运行权限
 RUN chmod +x ./build.sh
