@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/Diam2023/Bilibili-Tools/">
-    <img src="Doc/little_fish.png" width="120" height="120" alt="BiliBili-Tools">
+    <img src="Doc/little_fish.png" width="256" height="256" alt="BiliBili-Tools">
   </a>
 </p>
 
@@ -24,8 +24,6 @@
 
 
 ## TODO
-- [ ] 解决多推送缓存共用导致只发送一次问题
+- [x] 解决多推送缓存共用导致只发送一次问题
 - [ ] 提供QQ消息直接查询用户信息的接口
 - [ ] 获取用户信息缓存到Mysql 提供接口重新获取
-
-
