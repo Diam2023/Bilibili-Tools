@@ -44,7 +44,7 @@ services:
     container_name: bilibili_tools
     network_mode: host
     ports:
-      - "8099:8099"
+      - "8998:8998"
     restart: always
     networks:
       - database

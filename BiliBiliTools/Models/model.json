@@ -12,11 +12,11 @@
     //schema: valid for postgreSQL, "public" by default;
     "schema": "public",
     //user: User name
-    // "user": "server",
-    "user": "root",
+    "user": "server",
+    // "user": "root",
     //password or passwd: Password
-    "password": "123456",
-    // "password": "y2A@kw9&",
+    // "password": "123456",
+    "password": "y2A@kw9&",
     //client_encoding: The character set used by drogon_ctl. it is empty string by default which 
     //means use the default character set.
     //"client_encoding": "",
@@ -25,7 +25,7 @@
         "live_subscribe",
         "live_notify",
         "admin_table"
-    ],
+    ]
     //convert: the value can be changed by a function call before it is stored into database or
     //after it is read from database
     // "convert": {

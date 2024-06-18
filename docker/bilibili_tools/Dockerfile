@@ -8,19 +8,6 @@ ENV CC=gcc \
 
 RUN pacman -Syu --noconfirm && pacman -S --needed base-devel cmake git c-ares hiredis jsoncpp mariadb yay qt5-mqtt yarn yaml-cpp --noconfirm
 
-# Drogon
-
-ENV DROGON_ROOT="$IROOT/drogon"
-
-RUN git clone https://github.com/drogonframework/drogon $DROGON_ROOT
-
-WORKDIR $DROGON_ROOT
-
-RUN ./build.sh
-
-RUN drogon_ctl version
-
-
 # BiliBiliTools
 
 ENV SERVER_ROOT="$IROOT/BiliBiliTools"
@@ -45,7 +32,7 @@ ENV TARGET_FILE="$BIN_DIR/BiliBiliTools"
 
 
 # 暴露端口号
-EXPOSE 8099
+EXPOSE 8998
 
 # 启动服务器
 CMD [ $TARGET_FILE, $CONFIG_FILE ]
