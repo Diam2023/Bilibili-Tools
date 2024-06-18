@@ -14,8 +14,6 @@ using namespace drogon::orm;
 using namespace drogon_model::bilibili_database;
 
 const std::string LiveSubscribe::Cols::_id = "id";
-const std::string LiveSubscribe::Cols::_notify_target = "notify_target";
-const std::string LiveSubscribe::Cols::_target_type = "target_type";
 const std::string LiveSubscribe::Cols::_subscribe_target = "subscribe_target";
 const std::string LiveSubscribe::Cols::_check_timer = "check_timer";
 const std::string LiveSubscribe::primaryKeyName = "id";
@@ -24,8 +22,6 @@ const std::string LiveSubscribe::tableName = "live_subscribe";
 
 const std::vector<typename LiveSubscribe::MetaData> LiveSubscribe::metaData_={
 {"id","uint32_t","int unsigned",4,1,1,1},
-{"notify_target","std::string","varchar(20)",20,0,0,1},
-{"target_type","std::string","enum('PRIVATE','GROUP')",0,0,0,1},
 {"subscribe_target","std::string","varchar(20)",20,0,0,1},
 {"check_timer","uint32_t","int unsigned",4,0,0,1}
 };
@@ -42,14 +38,6 @@ LiveSubscribe::LiveSubscribe(const Row &r, const ssize_t indexOffset) noexcept
         {
             id_=std::make_shared<uint32_t>(r["id"].as<uint32_t>());
         }
-        if(!r["notify_target"].isNull())
-        {
-            notifyTarget_=std::make_shared<std::string>(r["notify_target"].as<std::string>());
-        }
-        if(!r["target_type"].isNull())
-        {
-            targetType_=std::make_shared<std::string>(r["target_type"].as<std::string>());
-        }
         if(!r["subscribe_target"].isNull())
         {
             subscribeTarget_=std::make_shared<std::string>(r["subscribe_target"].as<std::string>());
@@ -62,7 +50,7 @@ LiveSubscribe::LiveSubscribe(const Row &r, const ssize_t indexOffset) noexcept
     else
     {
         size_t offset = (size_t)indexOffset;
-        if(offset + 5 > r.size())
+        if(offset + 3 > r.size())
         {
             LOG_FATAL << "Invalid SQL result for this model";
             return;
@@ -76,19 +64,9 @@ LiveSubscribe::LiveSubscribe(const Row &r, const ssize_t indexOffset) noexcept
         index = offset + 1;
         if(!r[index].isNull())
         {
-            notifyTarget_=std::make_shared<std::string>(r[index].as<std::string>());
-        }
-        index = offset + 2;
-        if(!r[index].isNull())
-        {
-            targetType_=std::make_shared<std::string>(r[index].as<std::string>());
-        }
-        index = offset + 3;
-        if(!r[index].isNull())
-        {
             subscribeTarget_=std::make_shared<std::string>(r[index].as<std::string>());
         }
-        index = offset + 4;
+        index = offset + 2;
         if(!r[index].isNull())
         {
             checkTimer_=std::make_shared<uint32_t>(r[index].as<uint32_t>());
@@ -99,7 +77,7 @@ LiveSubscribe::LiveSubscribe(const Row &r, const ssize_t indexOffset) noexcept
 
 LiveSubscribe::LiveSubscribe(const Json::Value &pJson, const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 5)
+    if(pMasqueradingVector.size() != 3)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -117,7 +95,7 @@ LiveSubscribe::LiveSubscribe(const Json::Value &pJson, const std::vector<std::st
         dirtyFlag_[1] = true;
         if(!pJson[pMasqueradingVector[1]].isNull())
         {
-            notifyTarget_=std::make_shared<std::string>(pJson[pMasqueradingVector[1]].asString());
+            subscribeTarget_=std::make_shared<std::string>(pJson[pMasqueradingVector[1]].asString());
         }
     }
     if(!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2]))
@@ -125,23 +103,7 @@ LiveSubscribe::LiveSubscribe(const Json::Value &pJson, const std::vector<std::st
         dirtyFlag_[2] = true;
         if(!pJson[pMasqueradingVector[2]].isNull())
         {
-            targetType_=std::make_shared<std::string>(pJson[pMasqueradingVector[2]].asString());
-        }
-    }
-    if(!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3]))
-    {
-        dirtyFlag_[3] = true;
-        if(!pJson[pMasqueradingVector[3]].isNull())
-        {
-            subscribeTarget_=std::make_shared<std::string>(pJson[pMasqueradingVector[3]].asString());
-        }
-    }
-    if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
-    {
-        dirtyFlag_[4] = true;
-        if(!pJson[pMasqueradingVector[4]].isNull())
-        {
-            checkTimer_=std::make_shared<uint32_t>((uint32_t)pJson[pMasqueradingVector[4]].asUInt64());
+            checkTimer_=std::make_shared<uint32_t>((uint32_t)pJson[pMasqueradingVector[2]].asUInt64());
         }
     }
 }
@@ -156,25 +118,9 @@ LiveSubscribe::LiveSubscribe(const Json::Value &pJson) noexcept(false)
             id_=std::make_shared<uint32_t>((uint32_t)pJson["id"].asUInt64());
         }
     }
-    if(pJson.isMember("notify_target"))
-    {
-        dirtyFlag_[1]=true;
-        if(!pJson["notify_target"].isNull())
-        {
-            notifyTarget_=std::make_shared<std::string>(pJson["notify_target"].asString());
-        }
-    }
-    if(pJson.isMember("target_type"))
-    {
-        dirtyFlag_[2]=true;
-        if(!pJson["target_type"].isNull())
-        {
-            targetType_=std::make_shared<std::string>(pJson["target_type"].asString());
-        }
-    }
     if(pJson.isMember("subscribe_target"))
     {
-        dirtyFlag_[3]=true;
+        dirtyFlag_[1]=true;
         if(!pJson["subscribe_target"].isNull())
         {
             subscribeTarget_=std::make_shared<std::string>(pJson["subscribe_target"].asString());
@@ -182,7 +128,7 @@ LiveSubscribe::LiveSubscribe(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("check_timer"))
     {
-        dirtyFlag_[4]=true;
+        dirtyFlag_[2]=true;
         if(!pJson["check_timer"].isNull())
         {
             checkTimer_=std::make_shared<uint32_t>((uint32_t)pJson["check_timer"].asUInt64());
@@ -193,7 +139,7 @@ LiveSubscribe::LiveSubscribe(const Json::Value &pJson) noexcept(false)
 void LiveSubscribe::updateByMasqueradedJson(const Json::Value &pJson,
                                             const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 5)
+    if(pMasqueradingVector.size() != 3)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -210,7 +156,7 @@ void LiveSubscribe::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[1] = true;
         if(!pJson[pMasqueradingVector[1]].isNull())
         {
-            notifyTarget_=std::make_shared<std::string>(pJson[pMasqueradingVector[1]].asString());
+            subscribeTarget_=std::make_shared<std::string>(pJson[pMasqueradingVector[1]].asString());
         }
     }
     if(!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2]))
@@ -218,23 +164,7 @@ void LiveSubscribe::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[2] = true;
         if(!pJson[pMasqueradingVector[2]].isNull())
         {
-            targetType_=std::make_shared<std::string>(pJson[pMasqueradingVector[2]].asString());
-        }
-    }
-    if(!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3]))
-    {
-        dirtyFlag_[3] = true;
-        if(!pJson[pMasqueradingVector[3]].isNull())
-        {
-            subscribeTarget_=std::make_shared<std::string>(pJson[pMasqueradingVector[3]].asString());
-        }
-    }
-    if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
-    {
-        dirtyFlag_[4] = true;
-        if(!pJson[pMasqueradingVector[4]].isNull())
-        {
-            checkTimer_=std::make_shared<uint32_t>((uint32_t)pJson[pMasqueradingVector[4]].asUInt64());
+            checkTimer_=std::make_shared<uint32_t>((uint32_t)pJson[pMasqueradingVector[2]].asUInt64());
         }
     }
 }
@@ -248,25 +178,9 @@ void LiveSubscribe::updateByJson(const Json::Value &pJson) noexcept(false)
             id_=std::make_shared<uint32_t>((uint32_t)pJson["id"].asUInt64());
         }
     }
-    if(pJson.isMember("notify_target"))
-    {
-        dirtyFlag_[1] = true;
-        if(!pJson["notify_target"].isNull())
-        {
-            notifyTarget_=std::make_shared<std::string>(pJson["notify_target"].asString());
-        }
-    }
-    if(pJson.isMember("target_type"))
-    {
-        dirtyFlag_[2] = true;
-        if(!pJson["target_type"].isNull())
-        {
-            targetType_=std::make_shared<std::string>(pJson["target_type"].asString());
-        }
-    }
     if(pJson.isMember("subscribe_target"))
     {
-        dirtyFlag_[3] = true;
+        dirtyFlag_[1] = true;
         if(!pJson["subscribe_target"].isNull())
         {
             subscribeTarget_=std::make_shared<std::string>(pJson["subscribe_target"].asString());
@@ -274,7 +188,7 @@ void LiveSubscribe::updateByJson(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("check_timer"))
     {
-        dirtyFlag_[4] = true;
+        dirtyFlag_[2] = true;
         if(!pJson["check_timer"].isNull())
         {
             checkTimer_=std::make_shared<uint32_t>((uint32_t)pJson["check_timer"].asUInt64());
@@ -304,50 +218,6 @@ const typename LiveSubscribe::PrimaryKeyType & LiveSubscribe::getPrimaryKey() co
     return *id_;
 }
 
-const std::string &LiveSubscribe::getValueOfNotifyTarget() const noexcept
-{
-    static const std::string defaultValue = std::string();
-    if(notifyTarget_)
-        return *notifyTarget_;
-    return defaultValue;
-}
-const std::shared_ptr<std::string> &LiveSubscribe::getNotifyTarget() const noexcept
-{
-    return notifyTarget_;
-}
-void LiveSubscribe::setNotifyTarget(const std::string &pNotifyTarget) noexcept
-{
-    notifyTarget_ = std::make_shared<std::string>(pNotifyTarget);
-    dirtyFlag_[1] = true;
-}
-void LiveSubscribe::setNotifyTarget(std::string &&pNotifyTarget) noexcept
-{
-    notifyTarget_ = std::make_shared<std::string>(std::move(pNotifyTarget));
-    dirtyFlag_[1] = true;
-}
-
-const std::string &LiveSubscribe::getValueOfTargetType() const noexcept
-{
-    static const std::string defaultValue = std::string();
-    if(targetType_)
-        return *targetType_;
-    return defaultValue;
-}
-const std::shared_ptr<std::string> &LiveSubscribe::getTargetType() const noexcept
-{
-    return targetType_;
-}
-void LiveSubscribe::setTargetType(const std::string &pTargetType) noexcept
-{
-    targetType_ = std::make_shared<std::string>(pTargetType);
-    dirtyFlag_[2] = true;
-}
-void LiveSubscribe::setTargetType(std::string &&pTargetType) noexcept
-{
-    targetType_ = std::make_shared<std::string>(std::move(pTargetType));
-    dirtyFlag_[2] = true;
-}
-
 const std::string &LiveSubscribe::getValueOfSubscribeTarget() const noexcept
 {
     static const std::string defaultValue = std::string();
@@ -362,12 +232,12 @@ const std::shared_ptr<std::string> &LiveSubscribe::getSubscribeTarget() const no
 void LiveSubscribe::setSubscribeTarget(const std::string &pSubscribeTarget) noexcept
 {
     subscribeTarget_ = std::make_shared<std::string>(pSubscribeTarget);
-    dirtyFlag_[3] = true;
+    dirtyFlag_[1] = true;
 }
 void LiveSubscribe::setSubscribeTarget(std::string &&pSubscribeTarget) noexcept
 {
     subscribeTarget_ = std::make_shared<std::string>(std::move(pSubscribeTarget));
-    dirtyFlag_[3] = true;
+    dirtyFlag_[1] = true;
 }
 
 const uint32_t &LiveSubscribe::getValueOfCheckTimer() const noexcept
@@ -384,7 +254,7 @@ const std::shared_ptr<uint32_t> &LiveSubscribe::getCheckTimer() const noexcept
 void LiveSubscribe::setCheckTimer(const uint32_t &pCheckTimer) noexcept
 {
     checkTimer_ = std::make_shared<uint32_t>(pCheckTimer);
-    dirtyFlag_[4] = true;
+    dirtyFlag_[2] = true;
 }
 
 void LiveSubscribe::updateId(const uint64_t id)
@@ -395,8 +265,6 @@ void LiveSubscribe::updateId(const uint64_t id)
 const std::vector<std::string> &LiveSubscribe::insertColumns() noexcept
 {
     static const std::vector<std::string> inCols={
-        "notify_target",
-        "target_type",
         "subscribe_target",
         "check_timer"
     };
@@ -407,28 +275,6 @@ void LiveSubscribe::outputArgs(drogon::orm::internal::SqlBinder &binder) const
 {
     if(dirtyFlag_[1])
     {
-        if(getNotifyTarget())
-        {
-            binder << getValueOfNotifyTarget();
-        }
-        else
-        {
-            binder << nullptr;
-        }
-    }
-    if(dirtyFlag_[2])
-    {
-        if(getTargetType())
-        {
-            binder << getValueOfTargetType();
-        }
-        else
-        {
-            binder << nullptr;
-        }
-    }
-    if(dirtyFlag_[3])
-    {
         if(getSubscribeTarget())
         {
             binder << getValueOfSubscribeTarget();
@@ -438,7 +284,7 @@ void LiveSubscribe::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[4])
+    if(dirtyFlag_[2])
     {
         if(getCheckTimer())
         {
@@ -462,42 +308,12 @@ const std::vector<std::string> LiveSubscribe::updateColumns() const
     {
         ret.push_back(getColumnName(2));
     }
-    if(dirtyFlag_[3])
-    {
-        ret.push_back(getColumnName(3));
-    }
-    if(dirtyFlag_[4])
-    {
-        ret.push_back(getColumnName(4));
-    }
     return ret;
 }
 
 void LiveSubscribe::updateArgs(drogon::orm::internal::SqlBinder &binder) const
 {
     if(dirtyFlag_[1])
-    {
-        if(getNotifyTarget())
-        {
-            binder << getValueOfNotifyTarget();
-        }
-        else
-        {
-            binder << nullptr;
-        }
-    }
-    if(dirtyFlag_[2])
-    {
-        if(getTargetType())
-        {
-            binder << getValueOfTargetType();
-        }
-        else
-        {
-            binder << nullptr;
-        }
-    }
-    if(dirtyFlag_[3])
     {
         if(getSubscribeTarget())
         {
@@ -508,7 +324,7 @@ void LiveSubscribe::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[4])
+    if(dirtyFlag_[2])
     {
         if(getCheckTimer())
         {
@@ -530,22 +346,6 @@ Json::Value LiveSubscribe::toJson() const
     else
     {
         ret["id"]=Json::Value();
-    }
-    if(getNotifyTarget())
-    {
-        ret["notify_target"]=getValueOfNotifyTarget();
-    }
-    else
-    {
-        ret["notify_target"]=Json::Value();
-    }
-    if(getTargetType())
-    {
-        ret["target_type"]=getValueOfTargetType();
-    }
-    else
-    {
-        ret["target_type"]=Json::Value();
     }
     if(getSubscribeTarget())
     {
@@ -570,7 +370,7 @@ Json::Value LiveSubscribe::toMasqueradedJson(
     const std::vector<std::string> &pMasqueradingVector) const
 {
     Json::Value ret;
-    if(pMasqueradingVector.size() == 5)
+    if(pMasqueradingVector.size() == 3)
     {
         if(!pMasqueradingVector[0].empty())
         {
@@ -585,9 +385,9 @@ Json::Value LiveSubscribe::toMasqueradedJson(
         }
         if(!pMasqueradingVector[1].empty())
         {
-            if(getNotifyTarget())
+            if(getSubscribeTarget())
             {
-                ret[pMasqueradingVector[1]]=getValueOfNotifyTarget();
+                ret[pMasqueradingVector[1]]=getValueOfSubscribeTarget();
             }
             else
             {
@@ -596,35 +396,13 @@ Json::Value LiveSubscribe::toMasqueradedJson(
         }
         if(!pMasqueradingVector[2].empty())
         {
-            if(getTargetType())
+            if(getCheckTimer())
             {
-                ret[pMasqueradingVector[2]]=getValueOfTargetType();
+                ret[pMasqueradingVector[2]]=getValueOfCheckTimer();
             }
             else
             {
                 ret[pMasqueradingVector[2]]=Json::Value();
-            }
-        }
-        if(!pMasqueradingVector[3].empty())
-        {
-            if(getSubscribeTarget())
-            {
-                ret[pMasqueradingVector[3]]=getValueOfSubscribeTarget();
-            }
-            else
-            {
-                ret[pMasqueradingVector[3]]=Json::Value();
-            }
-        }
-        if(!pMasqueradingVector[4].empty())
-        {
-            if(getCheckTimer())
-            {
-                ret[pMasqueradingVector[4]]=getValueOfCheckTimer();
-            }
-            else
-            {
-                ret[pMasqueradingVector[4]]=Json::Value();
             }
         }
         return ret;
@@ -637,22 +415,6 @@ Json::Value LiveSubscribe::toMasqueradedJson(
     else
     {
         ret["id"]=Json::Value();
-    }
-    if(getNotifyTarget())
-    {
-        ret["notify_target"]=getValueOfNotifyTarget();
-    }
-    else
-    {
-        ret["notify_target"]=Json::Value();
-    }
-    if(getTargetType())
-    {
-        ret["target_type"]=getValueOfTargetType();
-    }
-    else
-    {
-        ret["target_type"]=Json::Value();
     }
     if(getSubscribeTarget())
     {
@@ -680,24 +442,9 @@ bool LiveSubscribe::validateJsonForCreation(const Json::Value &pJson, std::strin
         if(!validJsonOfField(0, "id", pJson["id"], err, true))
             return false;
     }
-    if(pJson.isMember("notify_target"))
-    {
-        if(!validJsonOfField(1, "notify_target", pJson["notify_target"], err, true))
-            return false;
-    }
-    else
-    {
-        err="The notify_target column cannot be null";
-        return false;
-    }
-    if(pJson.isMember("target_type"))
-    {
-        if(!validJsonOfField(2, "target_type", pJson["target_type"], err, true))
-            return false;
-    }
     if(pJson.isMember("subscribe_target"))
     {
-        if(!validJsonOfField(3, "subscribe_target", pJson["subscribe_target"], err, true))
+        if(!validJsonOfField(1, "subscribe_target", pJson["subscribe_target"], err, true))
             return false;
     }
     else
@@ -707,7 +454,7 @@ bool LiveSubscribe::validateJsonForCreation(const Json::Value &pJson, std::strin
     }
     if(pJson.isMember("check_timer"))
     {
-        if(!validJsonOfField(4, "check_timer", pJson["check_timer"], err, true))
+        if(!validJsonOfField(2, "check_timer", pJson["check_timer"], err, true))
             return false;
     }
     return true;
@@ -716,7 +463,7 @@ bool LiveSubscribe::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                                                        const std::vector<std::string> &pMasqueradingVector,
                                                        std::string &err)
 {
-    if(pMasqueradingVector.size() != 5)
+    if(pMasqueradingVector.size() != 3)
     {
         err = "Bad masquerading vector";
         return false;
@@ -751,27 +498,6 @@ bool LiveSubscribe::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                   return false;
           }
       }
-      if(!pMasqueradingVector[3].empty())
-      {
-          if(pJson.isMember(pMasqueradingVector[3]))
-          {
-              if(!validJsonOfField(3, pMasqueradingVector[3], pJson[pMasqueradingVector[3]], err, true))
-                  return false;
-          }
-        else
-        {
-            err="The " + pMasqueradingVector[3] + " column cannot be null";
-            return false;
-        }
-      }
-      if(!pMasqueradingVector[4].empty())
-      {
-          if(pJson.isMember(pMasqueradingVector[4]))
-          {
-              if(!validJsonOfField(4, pMasqueradingVector[4], pJson[pMasqueradingVector[4]], err, true))
-                  return false;
-          }
-      }
     }
     catch(const Json::LogicError &e)
     {
@@ -792,24 +518,14 @@ bool LiveSubscribe::validateJsonForUpdate(const Json::Value &pJson, std::string 
         err = "The value of primary key must be set in the json object for update";
         return false;
     }
-    if(pJson.isMember("notify_target"))
-    {
-        if(!validJsonOfField(1, "notify_target", pJson["notify_target"], err, false))
-            return false;
-    }
-    if(pJson.isMember("target_type"))
-    {
-        if(!validJsonOfField(2, "target_type", pJson["target_type"], err, false))
-            return false;
-    }
     if(pJson.isMember("subscribe_target"))
     {
-        if(!validJsonOfField(3, "subscribe_target", pJson["subscribe_target"], err, false))
+        if(!validJsonOfField(1, "subscribe_target", pJson["subscribe_target"], err, false))
             return false;
     }
     if(pJson.isMember("check_timer"))
     {
-        if(!validJsonOfField(4, "check_timer", pJson["check_timer"], err, false))
+        if(!validJsonOfField(2, "check_timer", pJson["check_timer"], err, false))
             return false;
     }
     return true;
@@ -818,7 +534,7 @@ bool LiveSubscribe::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
                                                      const std::vector<std::string> &pMasqueradingVector,
                                                      std::string &err)
 {
-    if(pMasqueradingVector.size() != 5)
+    if(pMasqueradingVector.size() != 3)
     {
         err = "Bad masquerading vector";
         return false;
@@ -842,16 +558,6 @@ bool LiveSubscribe::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
       if(!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2]))
       {
           if(!validJsonOfField(2, pMasqueradingVector[2], pJson[pMasqueradingVector[2]], err, false))
-              return false;
-      }
-      if(!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3]))
-      {
-          if(!validJsonOfField(3, pMasqueradingVector[3], pJson[pMasqueradingVector[3]], err, false))
-              return false;
-      }
-      if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
-      {
-          if(!validJsonOfField(4, pMasqueradingVector[4], pJson[pMasqueradingVector[4]], err, false))
               return false;
       }
     }
@@ -908,38 +614,6 @@ bool LiveSubscribe::validJsonOfField(size_t index,
 
             break;
         case 2:
-            if(pJson.isNull())
-            {
-                err="The " + fieldName + " column cannot be null";
-                return false;
-            }
-            if(!pJson.isString())
-            {
-                err="Type error in the "+fieldName+" field";
-                return false;
-            }
-            break;
-        case 3:
-            if(pJson.isNull())
-            {
-                err="The " + fieldName + " column cannot be null";
-                return false;
-            }
-            if(!pJson.isString())
-            {
-                err="Type error in the "+fieldName+" field";
-                return false;
-            }
-            if(pJson.isString() && std::strlen(pJson.asCString()) > 20)
-            {
-                err="String length exceeds limit for the " +
-                    fieldName +
-                    " field (the maximum value is 20)";
-                return false;
-            }
-
-            break;
-        case 4:
             if(pJson.isNull())
             {
                 err="The " + fieldName + " column cannot be null";

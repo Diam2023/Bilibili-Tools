@@ -23,6 +23,7 @@
     //table: An array of tables to be modelized. if the array is empty, all revealed tables are modelized.
     "tables": [
         "live_subscribe",
+        "live_notify",
         "admin_table"
     ],
     //convert: the value can be changed by a function call before it is stored into database or
