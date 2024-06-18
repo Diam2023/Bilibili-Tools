@@ -12,7 +12,7 @@ RUN pacman -Syu --noconfirm && pacman -S --needed base-devel cmake git c-ares hi
 
 ENV SERVER_ROOT="$IROOT/BiliBiliTools"
 
-RUN git clone https://github.com/Diam2023/Bilibili-Tools.git $SERVER_ROOT
+RUN git clone --recursive https://github.com/Diam2023/Bilibili-Tools.git $SERVER_ROOT
 
 WORKDIR $SERVER_ROOT
 
