@@ -7,15 +7,13 @@ services:
     image: mysql:8.2.0
     expose:
       - 3306
-    ports:
-      - "3306:3306"
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: yes
       MYSQL_DATABASE: bilibili_database
       MYSQL_ALLOW_EMPTY_PASSWORD: yes
       MYSQL_USER: server
       MYSQL_PASSWORD: y2A@kw9&
-    container_name: bilibili-mysql-compose
+    container_name: bilibili-mysql
     restart: always
     networks:
       - backend
@@ -29,11 +27,9 @@ services:
       dockerfile: Dockerfile
     expose:
       - 6379
-    ports:
-      - "6379:6379"
     networks:
       - backend
-    container_name: bilibili-redis-compose
+    container_name: bilibili-redis
     restart: always
     volumes:
       - "./redis/db/:/data"
