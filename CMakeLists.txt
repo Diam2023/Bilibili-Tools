@@ -10,6 +10,4 @@ add_subdirectory(BiliBiliTools)
 add_subdirectory(third_party/drogon)
 add_subdirectory(third_party/priority-timer-queue)
 
-find_package(Drogon CONFIG REQUIRED)
-
 add_subdirectory(test)
