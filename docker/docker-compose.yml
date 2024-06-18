@@ -1,12 +1,10 @@
-version: '3'
+# version: '3'
 
 # Networking: https://www.architect.io/blog/2023-03-23/manage-networking-with-docker-compose/
 
 services:
   mysql:
     image: mysql:8.2.0
-    networks:
-      - database
     expose:
       - 3306
     environment:
@@ -25,8 +23,6 @@ services:
     build:
       context: redis
       dockerfile: Dockerfile
-    networks:
-      - cache
     expose:
       - 6379
     container_name: bilibili-redis-compose
@@ -46,6 +42,3 @@ services:
     ports:
       - "8998:8998"
     restart: always
-    networks:
-      - database
-      - cache

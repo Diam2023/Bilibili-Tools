@@ -564,3 +564,5 @@ FodyWeavers.xsd
 ### Project
 
 build
+
+*.pid
