@@ -35,4 +35,4 @@ ENV TARGET_FILE="$BIN_DIR/BiliBiliTools"
 EXPOSE 8998
 
 # 启动服务器
-CMD [ $TARGET_FILE, $CONFIG_FILE ]
+CMD [ "/root/BiliBiliTools/build/BiliBiliTools/BiliBiliTools", "/root/BiliBiliTools/config.json" ]

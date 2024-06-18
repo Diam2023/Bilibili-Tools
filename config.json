@@ -40,7 +40,7 @@
             //name: Name of the client,'default' by default
             "rdbms": "mysql",
             //host: Server address,localhost by default
-            "host": "127.0.0.1",
+            "host": "backend",
             //port: Server port, 5432 by default
             "port": 3306,
             //dbname: Database name
@@ -73,7 +73,7 @@
             //name: Name of the client,'default' by default
             //"name":"",
             //host: Server IP, 127.0.0.1 by default
-            "host": "127.0.0.1",
+            "host": "backend",
             //port: Server port, 6379 by default
             "port": 6379,
             //username: '' by default which means 'default' in redis ACL

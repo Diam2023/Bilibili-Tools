@@ -7,6 +7,8 @@ services:
     image: mysql:8.2.0
     expose:
       - 3306
+    ports:
+      - "3306:3306"
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: yes
       MYSQL_DATABASE: bilibili_database
@@ -15,6 +17,8 @@ services:
       MYSQL_PASSWORD: y2A@kw9&
     container_name: bilibili-mysql-compose
     restart: always
+    networks:
+      - backend
     volumes:
       - "./mysql/sql/:/docker-entrypoint-initdb.d"
     command: --default-authentication-plugin=caching_sha2_password
@@ -25,6 +29,10 @@ services:
       dockerfile: Dockerfile
     expose:
       - 6379
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
     container_name: bilibili-redis-compose
     restart: always
     volumes:
@@ -38,7 +46,14 @@ services:
       context: bilibili_tools
       dockerfile: Dockerfile
     container_name: bilibili_tools
-    network_mode: host
+    networks:
+      - backend
     ports:
       - "8998:8998"
     restart: always
+    depends_on:
+      - redis
+      - mysql
+
+networks:
+  backend:
