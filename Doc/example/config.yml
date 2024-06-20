@@ -30,7 +30,7 @@ account: # 账号相关
   # 
   # 服务器可使用docker在本地搭建或者使用他人开放的服务
   sign-servers: 
-    - url: 'http://cq-sign:8963'  # 主签名服务器地址， 必填
+    - url: 'http://cq-sign:8080'  # 主签名服务器地址， 必填
       key: '114514'  # 签名服务器所需要的apikey, 如果签名服务器的版本在1.1.0及以下则此项无效
       authorization: '-'   # authorization 内容, 依服务端设置，如 'Bearer xxxx'
     - url: '-'  # 备用

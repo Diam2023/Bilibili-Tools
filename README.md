@@ -170,7 +170,7 @@ docker compose stop
 account:
   sign-servers: 
     # docker内默认版本为8.9.63  
-    - url: 'http://cq-sign:8963'
+    - url: 'http://cq-sign:8080'
       key: '114514'
       authorization: '-'
     - url: '-'  # 备用

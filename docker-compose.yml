@@ -7,7 +7,7 @@ services:
   qsign:
     image: xzhouqd/qsign:core-1.1.9
     expose:
-      - 8963
+      - 8080
     environment:
       BASE_PATH: "/srv/qsign/qsign/txlib/8.9.63"
     restart: always
