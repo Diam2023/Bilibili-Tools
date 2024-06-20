@@ -2,6 +2,7 @@
 #include <drogon/orm/Mapper.h>
 #include <trantor/utils/Logger.h>
 
+#include <cstdint>
 #include <exception>
 #include <memory>
 #include <mutex>
@@ -11,6 +12,7 @@
 #include <vector>
 #include "BiliBiliFetchClient.h"
 #include "BiliBiliRoomInfo.h"
+#include "BiliBiliUserInfo.h"
 #include "CqCommandHandler.h"
 #include "CqConnectionPool.h"
 #include "CqMessageManager.h"
@@ -52,11 +54,18 @@ void *UpdateFetchTask(void *arg)
 
     try
     {
-        auto status = bilibili::api::FetchRoomStatusByRoomId(roomId);
+        auto roomInfo =
+            bilibili::api::FetchClient::getInstance().fetchRoomInfoByRoomId(
+                roomId);
+        auto userInfo =
+            bilibili::api::FetchClient::getInstance().fetchUserInfoByUserId(
+                roomInfo->getUserId());
+
+        auto status = roomInfo->getLiveStatus();
         auto statusId = std::make_shared<int>(
             status == bilibili::model::RoomInfo::LiveStatus::OnLine ? 1 : 0);
         drogon::app().getRedisClient()->execCommandAsync(
-            [roomId, statusId](const RedisResult &r) {
+            [roomId, statusId, userInfo](const RedisResult &r) {
                 // 当直播的状态与数据库中不同时就响应
                 if ((r.type() != RedisResultType::kString) ||
                     ((r.type() == RedisResultType::kString) &&
@@ -96,8 +105,10 @@ void *UpdateFetchTask(void *arg)
                             roomId,
                             (liveNotify.getValueOfTargetType() == "PRIVATE"
                                  ? cq::ChatMessageType::Private
-                                 : cq::ChatMessageType::Group)};
+                                 : cq::ChatMessageType::Group),
+                            userInfo};
                         // Notify!
+                        // TODO 优化获取次数
                         bilibili::SubscribeWorker::getInstance().notify(
                             notifyMessage, *statusId);
                     }
@@ -141,6 +152,7 @@ void bilibili::SubscribeWorker::notify(NotifyMessageType notifyMsg, bool status)
     // onLineBotId
 
     auto roomId = std::get<1>(notifyMsg);
+    auto userInfo = std::get<3>(notifyMsg);
     // message
     std::string outputMessage;
     std::stringstream tempSS;
@@ -148,11 +160,6 @@ void bilibili::SubscribeWorker::notify(NotifyMessageType notifyMsg, bool status)
     auto boardcastMessages =
         drogon::app().getCustomConfig()["cqhttp"]["broadcast_message"];
 
-    // bilibili::model::RoomInfo;
-    auto roomInfo =
-        api::FetchClient::getInstance().fetchRoomInfoByRoomId(roomId);
-    auto userInfo = api::FetchClient::getInstance().fetchUserInfoByUserId(
-        roomInfo->getUserId());
     if (status)
     {
         // Notify Live
@@ -202,7 +209,6 @@ void bilibili::SubscribeWorker::work()
 
         if (runStatus)
         {
-            // TODO 使用最新版本
             if (TimerTickHandler(mainTimerQueue) > 0)
             {
                 MONO_QueueTaskInfo(mainTimerQueue);
@@ -237,16 +243,18 @@ void bilibili::SubscribeWorker::work()
                     continue;
                 }
                 // Rule
-                auto res = roomListCache.emplace_back(
-                    liveSubscribe.getValueOfSubscribeTarget());
+                auto sharedResult = liveSubscribe.getSubscribeTarget();
+                roomListCache.push_back(sharedResult);
                 NewTimerTask(mainTimerQueue,
                              UpdateFetchTask,
                              liveSubscribe.getValueOfCheckTimer(),
-                             (void *)(&res));
+                             (void *)(sharedResult.get()));
             }
             updateCacheFlag = false;
 
             EnableTimerQueue(mainTimerQueue);
+            // 立即更新!
+            TimerTickStep(mainTimerQueue, UINT32_MAX);
         }
     }
 }

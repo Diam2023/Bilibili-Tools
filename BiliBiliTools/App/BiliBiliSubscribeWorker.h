@@ -11,10 +11,12 @@
 #pragma once
 
 #include <atomic>
+#include <memory>
 #include <string>
 #include <thread>
 #include <tuple>
 #include <vector>
+#include "BiliBiliUserInfo.h"
 #include "Common.h"
 #include "CqCommandHandler.h"
 #include "priority_timer.h"
@@ -23,10 +25,13 @@ namespace bilibili
 {
 
 /**
- * @brief qqid roomid qqtid_type
+ * @brief qqid roomid qqtid_type UserInfo
  */
 using NotifyMessageType =
-    std::tuple<cq::ChatSenderIdType, std::string, cq::ChatMessageType>;
+    std::tuple<cq::ChatSenderIdType,
+               std::string,
+               cq::ChatMessageType,
+               std::shared_ptr<bilibili::model::UserInfo>>;
 
 /**
  * @brief 订阅工人
@@ -80,7 +85,7 @@ class SubscribeWorker
      * @brief 用于储存要获取的房间
      * roomid
      */
-    std::vector<std::string> roomListCache;
+    std::vector<std::shared_ptr<std::string>> roomListCache;
 };
 
 }  // namespace bilibili
