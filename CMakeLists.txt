@@ -10,4 +10,8 @@ add_subdirectory(BiliBiliTools)
 add_subdirectory(third_party/drogon)
 add_subdirectory(third_party/priority-timer-queue)
 
+target_compile_definitions(libmono INTERFACE
+    # MONO_PTQ_DEBUG
+)
+
 add_subdirectory(test)
