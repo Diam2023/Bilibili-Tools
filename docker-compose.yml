@@ -9,7 +9,9 @@ services:
     expose:
       - 8080
     environment:
-      BASE_PATH: "/srv/qsign/qsign/txlib/8.9.63"
+      - PORT=8080
+      - BASE_PATH=/srv/qsign/qsign/txlib/8.9.73
+      - ANDROID_ID=c07525e2a418177e
     restart: always
     networks:
       - cq
