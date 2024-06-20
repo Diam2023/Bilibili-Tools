@@ -109,6 +109,13 @@ class CqCommandHandler
     void versionHandler(const CqChatMessageData &data);
 
     /**
+     * @brief 更新缓存
+     * 
+     * @param data 
+     */
+    void renewHandler(const CqChatMessageData &data);
+
+    /**
      * @brief 输出所有订阅信息
      *
      * @param data

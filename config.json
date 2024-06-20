@@ -127,6 +127,24 @@
                     }
                 },
                 {
+                    "name": "renew", // 触发字符串
+                    "command": "renew",
+                    "match_rule": "(renew) *",
+                    "short_help": "更新缓存",
+                    "full_help": {
+                        "message": [
+                            "使用方法",
+                            "    renew",
+                            "描述",
+                            "    清除Redis缓存",
+                            "    重新获取所有订阅",
+                            "使用举例",
+                            "    renew",
+                            "        重新获取订阅"
+                        ]
+                    }
+                },
+                {
                     "name": "version",
                     "command": "version",
                     "match_rule": "(version)",
@@ -171,7 +189,9 @@
                 "取消订阅失败!", // 12
                 "订阅失败!", // 13
                 "订阅唤醒失败!", // 14
-                "用户已经订阅了[%s]房间!" // 15
+                "用户已经订阅了[%s]房间!", // 15
+                "更新缓存成功!", // 16
+                "更新缓存失败!" // 17
             ],
             "broadcast_message": {
                 // Broadcast message
@@ -213,8 +233,7 @@
             "webp",
             "svg"
         ],
-        "mime": {
-        },
+        "mime": {},
         "locations": [
             {
                 "default_content_type": "text/plain",

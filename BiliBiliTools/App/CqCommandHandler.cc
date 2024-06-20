@@ -185,6 +185,29 @@ void CqCommandHandler::versionHandler(const CqChatMessageData &data)
 
 using namespace drogon_model::bilibili_database;
 using namespace drogon::orm;
+using namespace drogon::nosql;
+
+void CqCommandHandler::renewHandler(const CqChatMessageData &data)
+{
+    auto outData = data;
+    try
+    {
+        drogon::app().getRedisClient()->execCommandSync<std::string>(
+            [](const RedisResult &r) { return r.asString(); }, "flushall");
+        bilibili::SubscribeWorker::getInstance().updateCache();
+        std::get<3>(outData) = hintMessages[16].asString();
+        CqMessageManager::getInstance().messageOut(MakeCqMesageData(outData));
+        return;
+    }
+    catch (const RedisException &err)
+    {
+    }
+    catch (const std::exception &err)
+    {
+    }
+    std::get<3>(outData) = hintMessages[17].asString();
+    CqMessageManager::getInstance().messageOut(MakeCqMesageData(outData));
+}
 
 void CqCommandHandler::listsHandler(const CqChatMessageData &data)
 {
@@ -526,6 +549,10 @@ void CqCommandHandler::matchCommand(const CqChatMessageData &data)
             else if (matchCommandName == "version")
             {
                 versionHandler(data);
+            }
+            else if (matchCommandName == "renew")
+            {
+                renewHandler(data);
             }
             else if (matchCommandName == "lists")
             {
