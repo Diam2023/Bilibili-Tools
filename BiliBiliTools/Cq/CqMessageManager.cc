@@ -72,7 +72,7 @@ void cq::CqMessageManager::messageOut(const cq::CqMessageData &data)
     auto ptr = cq::CqConnectionPool::getInstance().getOutPtr(data.first);
     if (ptr)
     {
-        LOG_DEBUG << data.second.toStyledString();
+        // LOG_DEBUG << data.second.toStyledString();
         ptr->send(data.second.toStyledString());
     }
     else

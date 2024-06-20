@@ -20,7 +20,6 @@
 #include "drogon/nosql/RedisResult.h"
 #include "drogon/orm/Criteria.h"
 #include "priority_timer.h"
-#include "priority_timer_node.h"
 
 static std::mutex queueMutex;
 
@@ -204,85 +203,50 @@ void bilibili::SubscribeWorker::work()
         if (runStatus)
         {
             // TODO 使用最新版本
-            MONO_TimerInnerHandler(mainTimerQueue);
+            if (TimerTickHandler(mainTimerQueue) > 0)
+            {
+                MONO_QueueTaskInfo(mainTimerQueue);
+            }
         }
 
         if (updateCacheFlag)
         {
-            MONO_DestroyPriorityQueue(mainTimerQueue);
-            mainTimerQueue = MONO_CreatePriorityQueue();
-            MONO_SetTimerQueueEnable(mainTimerQueue, true);
+            ClearTimerQueue(mainTimerQueue);
 
             roomListCache.clear();
 
             Mapper<LiveSubscribe> liveSubscribeMapper(
                 drogon::app().getDbClient());
+
+            std::vector<LiveSubscribe> liveSubscribeList;
+
             try
             {
-                auto liveSubscribeList = liveSubscribeMapper.findAll();
-                for (auto &&liveSubscribe : liveSubscribeList)
-                {
-                    if (liveSubscribe.getValueOfCheckTimer() == 0)
-                    {
-                        LOG_ERROR << "Error Check Timer: "
-                                  << liveSubscribe.getValueOfSubscribeTarget();
-                        continue;
-                    }
-                    // 缓存到Redis
-
-                    // // 先删除 集合
-                    // try
-                    // {
-                    //     drogon::app().getRedisClient()->execCommandSync(
-                    //         [](auto &r) {},
-                    //         "del %s%s",
-                    //         LIVE_SUBSCRIBE_SET_PREFIX,
-                    //         liveSubscribe.getValueOfSubscribeTarget().c_str());
-                    // }
-                    // catch (const std::exception &)
-                    // {
-                    //     // 抑制异常
-                    // }
-
-                    // // 添加集合
-                    // std::vector<LiveNotify> liveNotifyList;
-                    // try
-                    // {
-                    //     liveNotifyList = liveNotifyMapper.findBy(Criteria(
-                    //         LiveNotify::Cols::_subscribe_target,
-                    //         CompareOperator::EQ,
-                    //         liveSubscribe.getValueOfSubscribeTarget()));
-                    // }
-                    // catch (const std::exception &)
-                    // {
-                    // }
-
-                    // for (const auto &liveNotify : liveNotifyList)
-                    // {
-
-                    // }
-
-                    // Rule
-                    auto res = roomListCache.emplace_back(
-                        liveSubscribe.getValueOfSubscribeTarget());
-                    MONO_PushNode(mainTimerQueue,
-                                  MONO_CreateQueueNodeFull(
-                                      UpdateFetchTask,
-                                      1,
-                                      true,
-                                      10,
-                                      UINT8_MAX,
-                                      liveSubscribe.getValueOfCheckTimer(),
-                                      UINT8_MAX,
-                                      (void *)(&res),
-                                      nullptr));
-                }
+                liveSubscribeList = liveSubscribeMapper.findAll();
             }
             catch (const DrogonDbException &e)
             {
                 LOG_WARN << "Exception when find LiveSubscribe";
             }
+            for (const auto &liveSubscribe : liveSubscribeList)
+            {
+                if (liveSubscribe.getValueOfCheckTimer() == 0)
+                {
+                    LOG_ERROR << "Error Check Timer: "
+                              << liveSubscribe.getValueOfSubscribeTarget();
+                    continue;
+                }
+                // Rule
+                auto res = roomListCache.emplace_back(
+                    liveSubscribe.getValueOfSubscribeTarget());
+                NewTimerTask(mainTimerQueue,
+                             UpdateFetchTask,
+                             liveSubscribe.getValueOfCheckTimer(),
+                             (void *)(&res));
+            }
             updateCacheFlag = false;
+
+            EnableTimerQueue(mainTimerQueue);
         }
     }
 }
