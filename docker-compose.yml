@@ -4,37 +4,8 @@
 
 services:
   
-  qsign:
-    image: bilibili-tools-qsign:latest
-    expose:
-      - 8080
-    restart: always
-    environment:
-      - PORT=8080
-      - BASE_PATH=/srv/qsign/qsign/txlib/8.9.73
-      - ANDROID_ID=c07525e2a418177e
-    networks:
-      - cq
-    container_name: cq-sign
-
-  cqhttp:
-    image: bilibili-tools-cqhttp:latest
-    #build:
-    #  context: ./docker/cqhttp
-    #  dockerfile: Dockerfile
-    container_name: cq-http
-    networks:
-      - backend
-      - cq
-    restart: always
-    depends_on:
-      - qsign
-
   mysql:
-    #build:
-    #  context: ./docker/mysql
-    #  dockerfile: Dockerfile
-    image: bilibili-tools-mysql:latest
+    image: bilibilitools-mysql:latest
     expose:
       - 3306
     environment:
@@ -50,10 +21,7 @@ services:
     command: --default-authentication-plugin=caching_sha2_password
 
   redis:
-    #build:
-    #  context: ./docker/redis
-    #  dockerfile: Dockerfile
-    image: bilibili-tools-redis:latest
+    image: bilibilitools-redis:latest
     expose:
       - 6379
     networks:
@@ -62,22 +30,25 @@ services:
     restart: always
 
   server:
-    #build:
-    #  context: .
-    #  dockerfile: Dockerfile
-    image: bilibili-tools-server:latest
+    image: bilibilitools-server:latest
     container_name: bilibili-server
     networks:
       - backend
-      - cq
     expose:
       - 8998
     restart: always
     depends_on:
       - redis
       - mysql
-      - cqhttp
+
+  lagrange:
+    image: bilibilitools-lagrange:latest
+    container_name: bilibili-lagrange
+    networks:
+      - backend
+    restart: always
+    depends_on:
+      - server
 
 networks:
   backend:
-  cq:
