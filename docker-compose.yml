@@ -5,7 +5,9 @@
 services:
   
   qsign:
-    image: xzhouqd/qsign:core-1.1.9
+    build:
+      context: ./docker/qsign
+      dockerfile: Dockerfile
     expose:
       - 8080
     environment:
@@ -28,7 +30,6 @@ services:
     restart: always
     depends_on:
       - qsign
-      - server
 
   mysql:
     build:
@@ -73,6 +74,7 @@ services:
     depends_on:
       - redis
       - mysql
+      - cqhttp
 
 networks:
   backend:
