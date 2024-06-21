@@ -8,14 +8,14 @@
 
 # BiliBili直播通知工具 - 小鱼bot
 
-_✨ 基于 [go-cqhttp](https://github.com/Mrs4s/go-cqhttp/) 与 [Drogon](https://github.com/drogonframework/drogon) 实现 ✨_
+_✨ 基于 [Lagrange.Core](https://github.com/LagrangeDev/Lagrange.Core) 与 [Drogon](https://github.com/drogonframework/drogon) 实现 ✨_
 
 </div>
 
 ---
 
 ## 说明
-没有特殊需求可以配置好CqHttp后直接参考`Docker部署`即可运行
+没有特殊需求可以配置好可以直接参考[Docker部署](#docker部署)即可运行
 
 
 ## Feature
@@ -26,6 +26,7 @@ _✨ 基于 [go-cqhttp](https://github.com/Mrs4s/go-cqhttp/) 与 [Drogon](https:
 | 通过用户ID订阅     | ✔      | --- |
 | 通过直播间ID订阅   | ✔      | --- |
 | 到点通知           | ✔      | --- |
+| 重置推送缓存       | ✔      | --- |
 | 命令查询直播间信息 | R      | --- |
 
 ## 部署
@@ -39,20 +40,16 @@ _✨ 基于 [go-cqhttp](https://github.com/Mrs4s/go-cqhttp/) 与 [Drogon](https:
 git clone --recursive https://github.com/Diam2023/Bilibili-Tools.git BilibiliTools
 ```
 
-#### 配置GoCqhttp
-**该选项使用Docker必须需要配置**
-**如果是源码部署的 WebSocket地址参考下面配置说明一节**
-
-配置前提 [安装go-cqhttp](https://docs.go-cqhttp.org/guide/quick_start.html#%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B)
-
-1. 进入`./docker/cqhttp/cq_data_root`
-2. 在当前目录下运行`go-cqhttp` 选择反向ws 生成配置文件
-3. 参考配置说明修改`./docker/cqhttp/cq_data_root/config.yml`中的ws地址或使用`./Doc/example/config.yml`文件
-4. 修改好签名服务器地址以及QQ号即可完成
-
 ### Docker部署
 
-#### 运行
+#### Docker Compose结构
+
+* mysql
+* redis
+* server
+* lagrange
+
+#### Build && Run
 ```bash
 cd BilibiliTools
 
@@ -66,9 +63,33 @@ docker compose up
 ```bash
 docker compose stop
 ```
+#### 销毁
+```bash
+docker compose down
+```
+
 
 ### 源码部署
 #### 准备工作
+
+#### 配置Lagrange.Core
+
+配置文件参考[Lagrange.Core配置文件](https://lagrangedev.github.io/Lagrange.Doc/Lagrange.OneBot/Config/#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6)
+
+##### 配置文件
+```json
+{
+    "Type": "ReverseWebSocket",
+    "Host": "127.0.0.1",
+    "Port": 8998,
+    "Suffix": "/qq/receive",
+    "ReconnectInterval": 5000,
+    "HeartBeatInterval": 5000,
+    "HeartBeatEnable": true,
+    "AccessToken": ""
+}
+```
+
 ##### [安装drogon依赖](https://github.com/drogonframework/drogon/wiki/CHN-02-%E5%AE%89%E8%A3%85)
 * jsoncpp
 * libuuid
@@ -159,44 +180,8 @@ docker compose stop
 }
 ```
 
-### go-cqhttp
-
-配置文件路径`./docker/cqhttp/cq_data_root/config.json`
->[Cq配置文件](https://docs.go-cqhttp.org/guide/config.html#%E9%85%8D%E7%BD%AE)
-
-#### 配置说明
-
-```yaml
-account:
-  sign-servers: 
-    # docker内默认版本为8.9.63  
-    - url: 'http://cq-sign:8080'
-      key: '114514'
-      authorization: '-'
-    - url: '-'  # 备用
-      key: '114514'  
-      authorization: '-' 
-servers:
-  # 反向WS设置
-  - ws-reverse:
-      # 服务器地址
-      universal: ws://bilibili-server:8998/qq/receive
-      # 重连间隔 单位毫秒
-      reconnect-interval: 3000
-      middlewares:
-        <<: *default # 引用默认中间件
-```
-
-
 
 ## TODO
 - [x] 解决多推送缓存共用导致只发送一次问题
 - [ ] 提供QQ消息直接查询用户信息的接口
 - [ ] 获取用户信息缓存到Mysql 提供接口重新获取
-
-### 登入不上 我的解决方法
-
-1. 在本地配置好正常运行的go-cqhttp本地版本
-2. 配置go-cqhttp生成的`./docker/cqhttp/cq_data_root/device.json`中的protocol为2
-3. 使用扫码登入
-4. 复制本地的所有内容到`./docker/cqhttp/cq_data_root/`即可
