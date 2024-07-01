@@ -11,15 +11,12 @@
 
 #pragma once
 
-#include <json/json.h>
-#include <string>
+#include <CqMessageFilter.h>
 #include <functional>
 
 namespace cq
 {
-
-// string is bot id value is json data from bot received
-using CqMessageData = std::pair<std::string, Json::Value>;
+class CqMessageFilter;
 
 using CqMessageHandlerType = std::function<void(const CqMessageData &)>;
 
@@ -28,14 +25,42 @@ class CqMessageHandler
   public:
     CqMessageHandler() = default;
 
-    virtual void handler(const CqMessageData &) = 0;
+    /**
+     * Regist a Filter
+     * @param filterPtr filter
+     */
+    void registerFilter(const std::shared_ptr<CqMessageFilter> &filterPtr)
+    {
+        // Copy It
+        messageFilterList.push_back(filterPtr);
+    }
 
     void operator()(const CqMessageData &d)
     {
-        handler(d);
+        bool lastCheckResult = true;
+        for (const auto &messageFilter : messageFilterList)
+        {
+            // Call Filter
+            lastCheckResult = (*messageFilter)(d);
+            if (!lastCheckResult)
+            {
+                break;
+            }
+        }
+
+        if (lastCheckResult)
+        {
+            handler(d);
+        }
     }
 
-    virtual ~CqMessageHandler(){};
+    virtual ~CqMessageHandler() = default;
+
+  protected:
+    virtual void handler(const CqMessageData &) = 0;
+
+  private:
+    std::vector<std::shared_ptr<CqMessageFilter>> messageFilterList;
 };
 
 }  // namespace cq
