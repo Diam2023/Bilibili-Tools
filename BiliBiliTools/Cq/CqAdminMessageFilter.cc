@@ -23,7 +23,7 @@ CqAdminMessageFilter::CqAdminMessageFilter()
             [](const auto &r) {
                 for (const AdminTable &admin : r)
                 {
-                    auto qqVal = admin.getQq();
+                    const auto &qqVal = admin.getQq();
                     drogon::app().getRedisClient()->execCommandAsync(
                         [qqVal](const auto &result) {
                             if ((result.type() == RedisResultType::kInteger) &&
@@ -38,7 +38,7 @@ CqAdminMessageFilter::CqAdminMessageFilter()
                                                &e_) { LOG_WARN << e_.what(); },
                                         "sadd %s %s",
                                         ADMIN_CACHE_SET_PREFIX,
-                                        (*qqVal).c_str());
+                                        qqVal->c_str());
                             };
                         },
                         [](const drogon::nosql::RedisException &e_) {
@@ -46,7 +46,7 @@ CqAdminMessageFilter::CqAdminMessageFilter()
                         },
                         "sismember %s %s",
                         ADMIN_CACHE_SET_PREFIX,
-                        (*qqVal).c_str());
+                        qqVal->c_str());
                 }
             },
             [](const DrogonDbException &e) {
@@ -57,8 +57,7 @@ CqAdminMessageFilter::CqAdminMessageFilter()
 
 bool CqAdminMessageFilter::doFilter(const CqMessageData &data)
 {
-    if (!data.second["sender"]["user_id"].isNumeric() ||
-        !data.second["message"].isString())
+    if (!data.second["sender"]["user_id"].isNumeric())
     {
         return false;
     }
@@ -67,7 +66,7 @@ bool CqAdminMessageFilter::doFilter(const CqMessageData &data)
     auto prom = std::make_shared<std::promise<bool>>();
 
     drogon::app().getRedisClient()->execCommandAsync(
-        [senderId, prom](const auto &result) {
+        [prom](const auto &result) {
             if ((result.type() == RedisResultType::kInteger) &&
                 (result.asInteger() == 0))
             {

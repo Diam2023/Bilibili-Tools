@@ -6,6 +6,8 @@
 #include "CqCommandHandler.h"
 #include "CqGroupChatMessageFilter.h"
 
+#include <CqAdminMessageFilter.h>
+
 void cq::ChatMessageHandler::handler(const CqMessageData &data)
 {
     // 发送者
@@ -57,8 +59,14 @@ void cq::ChatMessageHandler::handler(const CqMessageData &data)
 
         // data.first 为bot qq
         // 推送到处理线程
-        auto commandData = CqChatMessageData(
-            data.first, senderId, groupId, receivedMessage, type);
+        auto commandData =
+            CqChatMessageData(data.first,
+                              senderId,
+                              groupId,
+                              receivedMessage,
+                              type,
+                              CqAdminMessageFilter::getInstance().doFilter(
+                                  data));
         cq::CqCommandHandler::getInstance().pushCommand(commandData);
 
     } while (false);

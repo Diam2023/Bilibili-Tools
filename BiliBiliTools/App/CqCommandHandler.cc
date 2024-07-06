@@ -56,8 +56,10 @@ void CqCommandHandler::init()
     {
         {
             // 动态生成regex缓存
-            commandRegex[commandItem["name"].asString()] = std::regex(
-                commandPrefix + commandItem["match_rule"].asString());
+            commandRegex[commandItem["name"].asString()] =
+                std::make_pair(std::regex(commandPrefix +
+                                          commandItem["match_rule"].asString()),
+                               commandItem["admin"].asBool());
         }
 
         {
@@ -547,22 +549,39 @@ void CqCommandHandler::subscribeHanlder(const CqChatMessageData &data,
 void CqCommandHandler::matchCommand(const CqChatMessageData &data)
 {
     // ChatBotIdType botId = std::get<0>(data);
-    // ChatSenderIdType senderId = std::get<1>(data);
+    ChatSenderIdType senderId = std::get<1>(data);
     // ChatGroupIdType groupId = std::get<2>(data);
     ChatMessageDataType message = std::get<3>(data);
     // ChatMessageType messageType = std::get<4>(data);
 
+    bool isAdmin = std::get<5>(data);
+
     // 输出缓存
     CqChatMessageData tempSendData;
 
+    // If matched command Need Permission up
+    bool permissionNeedResult = false;
+
     for (auto const &[commandName, commandRule] : commandRegex)
     {
-        bool matchResult = std::regex_match(message, commandRule);
+        bool matchResult = std::regex_match(message, commandRule.first);
         if (matchResult)
         {
+            // If No Admin Permission
+            if (!isAdmin)
+            {
+                // Command Need Admin
+                if (commandRule.second == true)
+                {
+                    permissionNeedResult = true;
+                    continue;
+                }
+            }
+            permissionNeedResult = false;
+
             std::sregex_iterator argIter(message.cbegin(),
                                          message.cend(),
-                                         commandRule);
+                                         commandRule.first);
             std::string matchCommandName = argIter->str(1);
             if (matchCommandName == "help")
             {
@@ -593,6 +612,12 @@ void CqCommandHandler::matchCommand(const CqChatMessageData &data)
                 subscribeHanlder(data, argIter->str(2), argIter->str(3));
             }
         }
+    }
+
+    if (permissionNeedResult)
+    {
+        // Need Permission Upgrade
+        // TODO Add Something here
     }
     // std::string token;
     // // Check If Non Login

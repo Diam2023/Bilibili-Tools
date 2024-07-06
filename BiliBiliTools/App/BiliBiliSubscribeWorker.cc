@@ -192,9 +192,15 @@ void bilibili::SubscribeWorker::notify(NotifyMessageType notifyMsg, bool status)
 
     auto targetId = std::get<0>(notifyMsg);
     auto targetType = std::get<2>(notifyMsg);
+
+    // TOOD Watting Restructure
     cq::CqMessageManager::getInstance().messageOut(
-        cq::CqCommandHandler::MakeCqMesageData(
-            {onLineBotId, targetId, targetId, outputMessage, targetType}));
+        cq::CqCommandHandler::MakeCqMesageData({onLineBotId,
+                                                targetId,
+                                                targetId,
+                                                outputMessage,
+                                                targetType,
+                                                false}));
 
     // msg
 }

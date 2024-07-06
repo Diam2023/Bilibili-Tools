@@ -35,7 +35,8 @@ using CqChatMessageData = std::tuple<ChatBotIdType,
                                      ChatSenderIdType,
                                      ChatGroupIdType,
                                      ChatMessageDataType,
-                                     ChatMessageType>;
+                                     ChatMessageType,
+                                     bool>;  // Admin
 
 class CqCommandHandler
 {
@@ -49,7 +50,8 @@ class CqCommandHandler
     Json::Value hintMessages;
 
     // 指令列表
-    std::unordered_map<std::string, std::regex> commandRegex;
+    // Last Boolean means Admin Request
+    std::unordered_map<std::string, std::pair<std::regex, bool>> commandRegex;
 
     // 命令缓存前缀
     std::string commandPrefix;
@@ -105,8 +107,8 @@ class CqCommandHandler
 
     /**
      * @brief 更新缓存
-     * 
-     * @param data 
+     *
+     * @param data
      */
     void renewHandler(const CqChatMessageData &data);
 
