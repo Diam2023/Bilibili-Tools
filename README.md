@@ -210,5 +210,13 @@ docker compose down
 - [ ] 获取用户信息缓存到Mysql 提供接口重新获取
 - [ ] 更新b站视频
 - [ ] 更新Readme 截图
-- [ ] 完善Version Info
 - [ ] 完善权限开关
+- [ ] Restructure Code
+- [ ] Broadcast Notify
+
+## BUG
+
+| Status | Info         |
+|--------|--------------|
+| R      | 服务器上线第一条命令被吞 |
+
