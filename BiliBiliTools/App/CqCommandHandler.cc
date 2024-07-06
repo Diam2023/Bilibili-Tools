@@ -292,6 +292,17 @@ void CqCommandHandler::unsubscribeHanlder(const CqChatMessageData &data,
     Mapper<LiveNotify> liveNotifyMapper(drogon::app().getDbClient());
     Mapper<LiveSubscribe> liveSubscribeMapper(drogon::app().getDbClient());
     auto outData = data;
+    auto senderType = std::get<4>(data);
+    std::string sender;
+
+    if (senderType == ChatMessageType::Private)
+    {
+        sender = std::get<1>(data);
+    }
+    else
+    {
+        sender = std::get<2>(data);
+    }
 
     memset(tempString, 0, sizeof(tempString));
     do
@@ -303,23 +314,35 @@ void CqCommandHandler::unsubscribeHanlder(const CqChatMessageData &data,
         }
         try
         {
-            // 删除所有订阅
-            auto resultCount = liveSubscribeMapper.deleteBy(
-                Criteria(LiveSubscribe::Cols::_subscribe_target,
+            // Delete Subscribe Target
+            auto liveSubscriberesultCount = liveNotifyMapper.deleteBy(
+                Criteria(LiveNotify::Cols::_notify_target,
+                         CompareOperator::EQ,
+                         sender) &&
+                Criteria(LiveNotify::Cols::_subscribe_target,
                          CompareOperator::EQ,
                          rid));
-
-            auto liveSubscriberesultCount = liveSubscribeMapper.deleteBy(
-                Criteria(LiveSubscribe::Cols::_subscribe_target,
-                         CompareOperator::EQ,
-                         rid));
-            if (resultCount == 0 && liveSubscriberesultCount == 0)
+            if (liveSubscriberesultCount == 0)
             {
                 sprintf(tempString, hintMessages[7].asCString(), rid.c_str());
             }
             else
             {
-                // 订阅成功
+                // Find All Subscriber If exits.
+                auto findResult = liveNotifyMapper.findBy(
+                    Criteria(LiveNotify::Cols::_subscribe_target,
+                             CompareOperator::EQ,
+                             rid));
+                // Delete Subscribe Room When Nobody Subscribe It.
+                if (findResult.empty())
+                {
+                    // 删除所有订阅Room
+                    liveSubscribeMapper.deleteBy(
+                        Criteria(LiveSubscribe::Cols::_subscribe_target,
+                                 CompareOperator::EQ,
+                                 rid));
+                }
+                // unsubscribe succesful
                 bilibili::SubscribeWorker::getInstance().updateCache();
                 sprintf(tempString, hintMessages[6].asCString(), rid.c_str());
             }
