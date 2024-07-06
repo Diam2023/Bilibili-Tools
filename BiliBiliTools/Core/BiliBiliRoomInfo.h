@@ -1,5 +1,4 @@
-#ifndef BILIBILIROOMINFO_H
-#define BILIBILIROOMINFO_H
+#pragma once
 
 #include <string>
 
@@ -107,5 +106,3 @@ class RoomInfo
 };
 
 }  // namespace bilibili::model
-
-#endif  // BILIBILIROOMINFO_H

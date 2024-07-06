@@ -14,7 +14,6 @@
 #include <drogon/drogon.h>
 #include <drogon/orm/Mapper.h>
 #include <json/value.h>
-#include <trantor/utils/Logger.h>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -444,7 +443,7 @@ void CqCommandHandler::subscriberHanlder(const CqChatMessageData &data,
                 Criteria(LiveNotify::Cols::_notify_target,
                          CompareOperator::EQ,
                          notifyTargetId));
-            if (resultSize.size() > 0)
+            if (!resultSize.empty())
             {
                 // 返回已经订阅了的消息
                 sprintf(tempString, hintMessages[15].asCString(), rid.c_str());

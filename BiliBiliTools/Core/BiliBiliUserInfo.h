@@ -1,5 +1,4 @@
-#ifndef BILIBILIUSERINFO_H
-#define BILIBILIUSERINFO_H
+#pragma once
 
 #include <string>
 #include <cstdint>
@@ -83,4 +82,3 @@ class UserInfo
 
 }  // namespace bilibili::model
 
-#endif  // BILIBILIUSERINFO_H

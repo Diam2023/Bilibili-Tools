@@ -8,8 +8,8 @@
  * @copyright Copyright (c) 2024 Diam
  *
  */
-#ifndef CQCONNECTIONPOOL_H
-#define CQCONNECTIONPOOL_H
+#pragma once
+
 
 #include <drogon/WebSocketConnection.h>
 #include <condition_variable>
@@ -64,5 +64,3 @@ class CqConnectionPool
 };
 
 }  // namespace cq
-
-#endif  // CQCONNECTIONPOOL_H

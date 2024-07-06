@@ -1,5 +1,4 @@
-#ifndef COMMON_H
-#define COMMON_H
+#pragma once
 
 /**
  * @brief 管理员缓存
@@ -26,4 +25,3 @@ const static char *LIVE_SUBSCRIBE_SET_PREFIX = "LSB:";
         return _##name;           \
     }
 
-#endif  // COMMON_H

@@ -1,5 +1,5 @@
-#ifndef BILIBILICOREFETCHCLIENT_H
-#define BILIBILICOREFETCHCLIENT_H
+#pragma once
+
 
 #include <drogon/HttpClient.h>
 #include <memory>
@@ -105,5 +105,3 @@ bilibili::model::RoomInfo::LiveStatus FetchRoomStatusByRoomId(
     const std::string &id_);
 
 }  // namespace bilibili::api
-
-#endif  // BILIBILICOREFETCHCLIENT_H

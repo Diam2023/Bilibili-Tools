@@ -8,9 +8,8 @@
  * @copyright Copyright (c) 2024 Diam
  *
  */
+#pragma once
 
-#ifndef CQADMINMESSAGEFILTER_H
-#define CQADMINMESSAGEFILTER_H
 
 #include <drogon/drogon.h>
 
@@ -34,5 +33,3 @@ class CqAdminMessageFilter : public virtual CqMessageFilter
 };
 
 }  // namespace cq
-
-#endif  // CQADMINMESSAGEFILTER_H

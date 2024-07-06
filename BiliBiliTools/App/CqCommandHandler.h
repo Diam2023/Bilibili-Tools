@@ -1,9 +1,4 @@
-//
-// Created by diam on 24-1-20.
-//
-
-#ifndef IOTSERVER_CQCOMMANDHANDLER_H
-#define IOTSERVER_CQCOMMANDHANDLER_H
+#pragma once
 
 #include <json/value.h>
 #include <string>
@@ -155,5 +150,3 @@ class CqCommandHandler
 };
 
 }  // namespace cq
-
-#endif  // IOTSERVER_CQCOMMANDHANDLER_H
