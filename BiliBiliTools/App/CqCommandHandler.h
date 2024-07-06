@@ -59,6 +59,9 @@ class CqCommandHandler
     // 动态帮助信息
     std::string helpMessage;
 
+    // Version Info
+    std::string versionMessage;
+
     // 详细帮助信息
     std::unordered_map<std::string, std::string> helpDetailMessage;
 

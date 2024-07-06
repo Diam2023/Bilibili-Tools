@@ -44,6 +44,17 @@ void CqCommandHandler::pushCommand(const CqChatMessageData &command)
     commandQueueCondVar.notify_one();
 }
 
+static bool replace(std::string &str,
+                    const std::string &from,
+                    const std::string &to)
+{
+    size_t start_pos = str.find(from);
+    if (start_pos == std::string::npos)
+        return false;
+    str.replace(start_pos, from.length(), to);
+    return true;
+}
+
 void CqCommandHandler::init()
 {
     // Gen Command And Prefix
@@ -100,7 +111,15 @@ void CqCommandHandler::init()
 
     {
         // Version Info
-        helpMessageStream << "Powered by " << config["bot_name"].asString();
+        versionMessage = config["version_format"].asString();
+        replace(versionMessage, "[name]", config["bot_name"].asString());
+        replace(versionMessage,
+                "[ver]",
+                drogon::app().getCustomConfig()["version"].asString());
+    }
+
+    {
+        helpMessageStream << versionMessage;
         helpMessage = helpMessageStream.str();
     }
 }
@@ -180,7 +199,7 @@ void CqCommandHandler::helpHandler(const CqChatMessageData &data,
 void CqCommandHandler::versionHandler(const CqChatMessageData &data)
 {
     auto outData = data;
-    std::get<3>(outData) = "// TODO 待完善";
+    std::get<3>(outData) = versionMessage;
     CqMessageManager::getInstance().messageOut(MakeCqMesageData(outData));
 }
 

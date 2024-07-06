@@ -33,6 +33,7 @@
     }
   ],
   "custom_config": {
+    "version": "0.1",
     "enabel_private_subscribe": true,
     // Is enable private chat live push
     "default_fetch_delay": 60,
@@ -42,6 +43,7 @@
     "max_fetch_delay": 100000,
     // 最大获取时间周期
     "cqhttp": {
+      "version_format": "Powered by [name] v[ver]",
       "bot_name": "小鱼bot",
       "command_prefix": "/",
       // 命令前缀
