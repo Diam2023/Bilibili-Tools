@@ -1,22 +1,21 @@
-FROM manjarolinux/base
+FROM alpine AS builder
 
-ENV CC=gcc \
-    CXX=g++ \
+ENV CMAKE_C_COMPILER=gcc \
+    CMAKE_CXX_COMPILER=g++ \
+    CMAKE_MAKE_PROGRAM=make \
     AR=gcc-ar \
     RANLIB=gcc-ranlib \
     IROOT=/root
 
-RUN pacman -Syu --noconfirm && pacman -S --needed base-devel cmake c-ares hiredis jsoncpp mariadb --noconfirm
-
-# BiliBiliTools
+# RUN pacman -Syu --noconfirm && pacman -S --needed base-devel cmake c-ares hiredis jsoncpp mariadb --noconfirm
+# RUN apt update && apt install -y cmake g++ gcc libjsoncpp-dev uuid-dev zlib1g-dev postgresql-server-dev-all libmariadb-dev-compat openssl libssl-dev libhiredis-dev
+RUN apk add hiredis-dev mariadb-dev libuuid util-linux-dev jsoncpp-dev  zlib-dev gcc g++ make cmake
 
 ENV SERVER_ROOT="$IROOT/BiliBiliTools"
 
 RUN mkdir $SERVER_ROOT
 
 WORKDIR $SERVER_ROOT
-
-RUN ls -l
 
 COPY . $SERVER_ROOT
 
@@ -27,18 +26,17 @@ RUN chmod +x ./build.sh
 
 RUN ./build.sh
 
-ENV BIN_DIR="$SERVER_ROOT/build"
+FROM alpine
 
-WORKDIR $BIN_DIR
+RUN apk add hiredis-dev mariadb-dev libuuid util-linux-dev jsoncpp-dev zlib-dev
 
-# 配置文件
-ENV CONFIG_FILE="$SERVER_ROOT/config.json"
+COPY --from=builder /root/BiliBiliTools/build/out/BiliBiliTools /root
+COPY --from=builder /root/BiliBiliTools/config.json /root
 
-ENV TARGET_FILE="$BIN_DIR/BiliBiliTools"
-
+WORKDIR /root
 
 # 暴露端口号
 EXPOSE 8998
 
 # 启动服务器
-CMD [ "/root/BiliBiliTools/build/BiliBiliTools/BiliBiliTools", "/root/BiliBiliTools/config.json" ]
+CMD ["/root/BiliBiliTools", "/root/config.json"]
