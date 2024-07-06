@@ -19,6 +19,25 @@ _✨ 基于 [Lagrange.Core](https://github.com/LagrangeDev/Lagrange.Core)
 
 没有特殊需求可以配置好可以直接参考[Docker部署](#docker部署)即可运行
 
+私聊群组均可用
+
+server镜像大小为67Mb
+
+---
+## 效果图
+
+<center style="padding: 20px; background: #0D0812; border-radius: 20px; box-shadow:5px 5px 5px 0 #0D0812;">
+
+  <a href="./Doc/display_fir.png">
+    <img src="Doc/display_fir.png" alt="display_fir">
+  </a>
+  <hr>
+  <a href="./Doc/display_sec.png">
+    <img src="Doc/display_sec.png" alt="display_fir">
+  </a>
+
+</center>
+
 ## Feature
 
 | Function           | Status |     |
@@ -29,8 +48,8 @@ _✨ 基于 [Lagrange.Core](https://github.com/LagrangeDev/Lagrange.Core)
 | 通过直播间ID订阅          | ✔      | --- |
 | 到点通知               | ✔      | --- |
 | 重置推送缓存             | ✔      | --- |
+| Permission Support | ✔      | --- |
 | 命令查询直播间信息          | R      | --- |
-| Permission Support | R      | --- |
 
 ## 部署
 
@@ -50,6 +69,13 @@ git clone --recursive https://github.com/Diam2023/Bilibili-Tools.git BilibiliToo
 * redis
 * server
 * lagrange
+
+#### 管理员QQ号
+
+地址:[bilibili_tools.sql](./docker/mysql/sql/billibili_tools.sql)
+
+修改`24`行`3555838354`为你的qq号, 并删除`25:26`行
+
 
 #### Build && Run
 
@@ -209,7 +235,6 @@ docker compose down
 - [ ] 提供QQ消息直接查询用户信息的接口
 - [ ] 获取用户信息缓存到Mysql 提供接口重新获取
 - [ ] 更新b站视频
-- [ ] 更新Readme 截图
 - [ ] 完善权限开关
 - [ ] Restructure Code
 - [ ] Broadcast Notify
