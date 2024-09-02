@@ -45,6 +45,71 @@ server镜像大小为67Mb
 | 基本订阅通知功能   | ✔      | [v0.1](https://github.com/Diam2023/Bilibili-Tools/releases/tag/v0.1) |
 | 命令查询直播间信息 | R      | --- |
 
+
+---
+## Framework
+
+### BotRegister Sequence
+
+### Subscribe Sequence
+```mermaid
+%% Subscribe Sequence
+sequenceDiagram
+  participant CqMessageManager
+  participant CqFilter*
+  participant CqCommandHandler
+  participant BiliBiliSubscribeWorker
+  
+  loop MessageHandler
+    CqMessageManager->>CqFilter*: PushMessage
+    CqFilter*->>CqCommandHandler: FilterPermission
+    Note over CqCommandHandler: MatchSubscribeCommand
+    Note over CqCommandHandler: UpdateToDatabase
+
+    CqCommandHandler->>BiliBiliSubscribeWorker: CacheReloadSignal
+
+    activate BiliBiliSubscribeWorker
+    Note over BiliBiliSubscribeWorker: ReloadCache
+    deactivate BiliBiliSubscribeWorker
+
+  end
+
+```
+
+
+### Notify Service Sequence
+```mermaid
+%% Notify Service Sequence
+sequenceDiagram
+  participant BiliBiliSubscribeWorker
+  participant LiveSubscribeDataBase
+  participant CqMessageWorker
+  participant CqConnectionPool
+
+  loop CacheReloader
+    
+    Note over BiliBiliSubscribeWorker: OnCacheLoad
+    BiliBiliSubscribeWorker->>LiveSubscribeDataBase: FetchSubscribeList
+    LiveSubscribeDataBase->>BiliBiliSubscribeWorker: AllSubscribeData
+
+    activate BiliBiliSubscribeWorker
+
+    loop PriorityTimerQueueWorker
+        Note over BiliBiliSubscribeWorker: TimerOntime 
+        BiliBiliSubscribeWorker->>CqMessageWorker: SendNotify
+        activate CqConnectionPool
+        CqMessageWorker->>CqConnectionPool: SendMessageByOnlineBot
+        deactivate CqConnectionPool
+    end
+
+    deactivate BiliBiliSubscribeWorker
+  end
+```
+
+
+
+---
+
 ## 部署
 
 ### 准备工作 重要
