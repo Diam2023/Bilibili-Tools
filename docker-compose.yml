@@ -48,12 +48,15 @@ services:
       - mysql
 
   lagrange:
-    build:
-      context: ./docker/lagrange
-      dockerfile: Dockerfile
+    image: ghcr.io/lagrangedev/lagrange.onebot:edge
     container_name: bilibili-lagrange
+    volumes:
+      - ./docker/lagrange/lagrange_data:/app/data
     networks:
       - backend
+    environment:
+      - UID=1000
+      - GID=1000
     restart: always
     depends_on:
       - server
