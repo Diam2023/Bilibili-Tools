@@ -6,5 +6,5 @@
 .git
 .cache
 .vscode
-docker
+# docker
 uploads
