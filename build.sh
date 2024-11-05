@@ -1,5 +1,6 @@
 #!/bin/sh
 
+rm -rf build
 mkdir -p build
 cd build || (echo "Error" && exit)
 cmake -DCMAKE_BUILD_TYPE=Release \

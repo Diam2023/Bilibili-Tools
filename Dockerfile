@@ -31,7 +31,7 @@ FROM alpine
 RUN apk add hiredis-dev mariadb-dev libuuid util-linux-dev jsoncpp-dev zlib-dev
 
 COPY --from=builder /root/BiliBiliTools/build/out/BiliBiliTools /root
-COPY --from=builder /root/BiliBiliTools/config.json /root
+COPY --from=builder /root/BiliBiliTools/docker/server/config.json /root
 
 WORKDIR /root
 

@@ -572,5 +572,5 @@ cq_data_root/
 
 docker/lagrange/lagrange_data/device.json
 docker/lagrange/lagrange_data/keystore.json
-docker/lagrange/lagrange_data/lagrange-0.db
+docker/lagrange/lagrange_data/lagrange*.db
 docker/lagrange/lagrange_data/qr-0.png
