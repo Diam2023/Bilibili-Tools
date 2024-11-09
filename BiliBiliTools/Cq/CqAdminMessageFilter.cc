@@ -57,11 +57,11 @@ CqAdminMessageFilter::CqAdminMessageFilter()
 
 bool CqAdminMessageFilter::doFilter(const CqMessageData &data)
 {
-    if (!data.second["sender"]["user_id"].isNumeric())
+    if (!(*data.second)["sender"]["user_id"].isNumeric())
     {
         return false;
     }
-    auto senderId = data.second["sender"]["user_id"].asString();
+    auto senderId = (*data.second)["sender"]["user_id"].asString();
 
     auto prom = std::make_shared<std::promise<bool>>();
 

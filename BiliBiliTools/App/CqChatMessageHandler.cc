@@ -20,19 +20,23 @@ void cq::ChatMessageHandler::handler(const CqMessageData &data)
     do
     {
         ChatMessageType type;
+        if (!data.second) {
+            break;
+        }
+
         if (CqGroupChatMessageFilter::getInstance().doFilter(data))
         {
             type = ChatMessageType::Group;
-            if (!data.second["sender"]["user_id"].isNumeric() ||
-                !data.second["group_id"].isNumeric() ||
-                !data.second["message"].isString())
+            if (!(*data.second)["sender"]["user_id"].isNumeric() ||
+                !(*data.second)["group_id"].isNumeric() ||
+                !(*data.second)["raw_message"].isString())
             {
                 break;
             }
 
-            senderId = data.second["sender"]["user_id"].asString();
-            groupId = data.second["group_id"].asString();
-            receivedMessage = data.second["message"].asString();
+            senderId = (*data.second)["sender"]["user_id"].asString();
+            groupId = (*data.second)["group_id"].asString();
+            receivedMessage = (*data.second)["raw_message"].asString();
 
             if (senderId.empty() || groupId.empty() || receivedMessage.empty())
             {
@@ -42,14 +46,14 @@ void cq::ChatMessageHandler::handler(const CqMessageData &data)
         else
         {
             type = ChatMessageType::Private;
-            if (!data.second["sender"]["user_id"].isNumeric() ||
-                !data.second["message"].isString())
+            if (!(*data.second)["sender"]["user_id"].isNumeric() ||
+                !(*data.second)["raw_message"].isString())
             {
                 break;
             }
 
-            senderId = data.second["sender"]["user_id"].asString();
-            receivedMessage = data.second["message"].asString();
+            senderId = (*data.second)["sender"]["user_id"].asString();
+            receivedMessage = (*data.second)["raw_message"].asString();
 
             if (senderId.empty() || receivedMessage.empty())
             {
@@ -71,5 +75,5 @@ void cq::ChatMessageHandler::handler(const CqMessageData &data)
 
     } while (false);
 
-    // LOG_DEBUG << "UnHandler Message: " << data.second.toStyledString();
+    LOG_DEBUG << "UnHandler Message: " << (*data.second).toStyledString();
 }

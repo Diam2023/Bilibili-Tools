@@ -1,5 +1,7 @@
 #include "CqWebsocket.h"
+#include <json/value.h>
 #include <trantor/utils/Logger.h>
+#include <memory>
 
 #include "CqConnectionPool.h"
 
@@ -21,8 +23,9 @@ void CqWebsocket::handleNewMessage(const WebSocketConnectionPtr &wsConnPtr,
     if ((type == WebSocketMessageType::Text) && err.empty())
     {
         auto id = cq::CqConnectionPool::getInstance().getId(wsConnPtr);
+        auto msg = std::make_shared<Json::Value>(tree);
         // Load Manager
-        cq::CqMessageManager::getInstance().messageIn({id, tree});
+        cq::CqMessageManager::getInstance().messageIn({id, msg});
     }
 }
 

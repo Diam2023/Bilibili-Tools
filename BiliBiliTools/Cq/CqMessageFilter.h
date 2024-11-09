@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include <memory>
 #include <string>
 #include <utility>
 #include <json/json.h>
@@ -11,7 +12,7 @@ namespace cq
 {
 
 // string is bot id value is json data from bot received
-using CqMessageData = std::pair<std::string, Json::Value>;
+using CqMessageData = std::pair<std::string, std::shared_ptr<Json::Value>>;
 
 class CqMessageFilter
 {

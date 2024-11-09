@@ -13,6 +13,6 @@
 
 bool cq::CqGroupChatMessageFilter::doFilter(const cq::CqMessageData &data)
 {
-    auto messageDataJsonData = data.second["message_type"];
+    auto messageDataJsonData = (*data.second)["message_type"];
     return messageDataJsonData.asString() == "group";
 }

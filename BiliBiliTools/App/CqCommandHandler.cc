@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <cstring>
 #include <exception>
+#include <memory>
 #include <ostream>
 #include <regex>
 #include <sstream>
@@ -161,7 +162,7 @@ CqMessageData CqCommandHandler::MakeCqMesageData(const CqChatMessageData &data)
     jsonData["params"]["group_id"] = groupIdNum;
     jsonData["params"]["message"] = message;
     jsonData["params"]["auto_escape"] = true;
-    return {botId, jsonData};
+    return {botId, std::make_shared<Json::Value>(jsonData)};
 }
 
 void CqCommandHandler::helpHandler(const CqChatMessageData &data,

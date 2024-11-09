@@ -26,6 +26,7 @@
       "port": 6379,
       "username": "",
       "passwd": "iO81@71",
+      // "passwd": "",
       "db": 0,
       "is_fast": false,
       "number_of_connections": 1,

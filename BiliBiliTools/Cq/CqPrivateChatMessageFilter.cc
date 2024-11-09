@@ -6,6 +6,6 @@
 
 bool cq::CqPrivateChatMessageFilter::doFilter(const cq::CqMessageData &data)
 {
-    auto messageDataJsonData = data.second["message_type"];
+    auto messageDataJsonData = (*data.second)["message_type"];
     return messageDataJsonData.asString() == "private";
 }

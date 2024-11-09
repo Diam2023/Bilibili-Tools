@@ -73,7 +73,7 @@ void cq::CqMessageManager::messageOut(const cq::CqMessageData &data)
     if (ptr)
     {
         // LOG_DEBUG << data.second.toStyledString();
-        ptr->send(data.second.toStyledString());
+        ptr->send((*data.second).toStyledString());
     }
     else
     {
